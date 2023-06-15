@@ -7,6 +7,4 @@ assignees: ''
 
 ---
 
-## Description
-
-<br/>
+## To Do
