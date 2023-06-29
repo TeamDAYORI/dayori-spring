@@ -3,6 +3,7 @@ package com.tody.dayori.page.domain;
 import com.tody.dayori.diary.domain.Diary;
 import com.tody.dayori.user.domain.User;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.data.annotation.CreatedDate;
 
 import javax.persistence.*;
@@ -32,7 +33,7 @@ public class Page {
     @Column(name="page_content")
     private String content;
 
-    @CreatedDate
+    @CreationTimestamp
     @Column(name="page_date")
     private LocalDateTime date;
 
