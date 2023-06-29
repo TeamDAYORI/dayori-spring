@@ -1,5 +1,6 @@
 package com.tody.dayori.page.domain;
 
+import com.tody.dayori.diary.domain.Diary;
 import com.tody.dayori.user.domain.User;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -13,7 +14,7 @@ import java.time.LocalDateTime;
 @Getter
 public class Page {
 
-    @Id @GeneratedValue
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "page_seq")
     private Long id;
 
@@ -21,7 +22,9 @@ public class Page {
     @JoinColumn(name = "user_seq")
     private User user;
 
-    // 다이어리
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "diary_seq")
+    private Diary diary;
 
     @Column(name = "page_title")
     private String title;
@@ -39,5 +42,4 @@ public class Page {
         this.content = content;
         this.date = date;
     }
-
 }
