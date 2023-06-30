@@ -14,18 +14,7 @@ import java.time.format.DateTimeFormatter;
 @Getter @Setter
 @Builder
 public class CreatePageRequest {
+    private Long diaryId;
     private String title;
     private String content;
-    private LocalDateTime date = LocalDateTime.now();
-    private User userInfo;
-    private Diary diary;
-    public Page toEntity() {
-        return Page.builder()
-                .title(title)
-                .content(content)
-                .date(date)
-                .userInfo(userInfo)
-                .diary(diary)
-                .build();
-    }
 }

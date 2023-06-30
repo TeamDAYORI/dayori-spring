@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
@@ -23,15 +24,14 @@ public class PageService {
     private final PageRepository pageRepository;
 
     @Transactional
-    public Long createPage (CreatePageRequest createPageRequest, Long userId, Long diaryId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("유저 없음"));
-        Diary diary = diaryRepository.findById(diaryId)
-                .orElseThrow(() -> new IllegalArgumentException("다이어리 없음"));
-        createPageRequest.setUserInfo(user);
-        createPageRequest.setDiary(diary);
-
-        Page page = createPageRequest.toEntity();
+    public Long createPage (CreatePageRequest createPageRequest, User user, Diary diary) {
+        Page page = Page.builder()
+                    .title(createPageRequest.getTitle())
+                    .content(createPageRequest.getContent())
+                    .date(LocalDateTime.now())
+                    .userInfo(user)
+                    .diary(diary)
+                    .build();
         pageRepository.save(page);
 
         return page.getId();
