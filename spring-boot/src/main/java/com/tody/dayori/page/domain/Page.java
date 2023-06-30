@@ -21,7 +21,7 @@ public class Page {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_seq")
-    private User user;
+    private User userInfo;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "diary_seq")
@@ -38,9 +38,11 @@ public class Page {
     private LocalDateTime date;
 
     @Builder
-    public Page (String title, String content, LocalDateTime date) {
+    public Page (String title, String content, LocalDateTime date, User userInfo, Diary diary) {
         this.title = title;
         this.content = content;
         this.date = date;
+        this.userInfo = userInfo;
+        this.diary = diary;
     }
 }

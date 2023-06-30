@@ -1,13 +1,7 @@
 package com.tody.dayori.page.repository;
 
 import com.tody.dayori.page.domain.Page;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Repository;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-import javax.persistence.EntityManager;
-
-@Repository
-@RequiredArgsConstructor
-public class PageRepository {
-
+public interface PageRepository extends JpaRepository<Page, Long> {
 }
