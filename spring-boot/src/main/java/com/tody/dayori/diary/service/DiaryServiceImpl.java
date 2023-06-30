@@ -31,8 +31,8 @@ public class DiaryServiceImpl implements DiaryService{
     }
 
     @Transactional
-    public Diary getDiary(Diary diary) {
-        Optional<Diary> result = diaryRepository.findById(diary.getDiarySeq());
+    public Diary getDiary(Long diaryId) {
+        Optional<Diary> result = diaryRepository.findById(diaryId);
         return result.orElseThrow(NullPointerException::new);
     }
 }
