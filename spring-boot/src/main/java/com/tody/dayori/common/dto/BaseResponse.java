@@ -1,4 +1,4 @@
-package com.tody.dayori.common;
+package com.tody.dayori.common.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
