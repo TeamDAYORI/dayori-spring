@@ -4,6 +4,9 @@ import com.tody.dayori.diary.domain.Diary;
 import com.tody.dayori.diary.repository.DiaryRepository;
 import com.tody.dayori.page.domain.Page;
 import com.tody.dayori.page.dto.CreatePageRequest;
+import com.tody.dayori.page.dto.SearchPageRequest;
+import com.tody.dayori.page.dto.SearchPageResponse;
+import com.tody.dayori.page.exception.NotExistPageException;
 import com.tody.dayori.page.repository.PageRepository;
 import com.tody.dayori.user.domain.User;
 import com.tody.dayori.user.repository.UserRepository;
@@ -19,10 +22,15 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class PageService {
 
-    private final UserRepository userRepository;
-    private final DiaryRepository diaryRepository;
     private final PageRepository pageRepository;
 
+    /**
+     * 페이지 생성
+     * @param createPageRequest diaryId, title, content
+     * @param user 유저 정보
+     * @param diary 다이어리 정보
+     * @return pageId
+     */
     @Transactional
     public Long createPage (CreatePageRequest createPageRequest, User user, Diary diary) {
         Page page = Page.builder()
@@ -33,8 +41,23 @@ public class PageService {
                     .diary(diary)
                     .build();
         pageRepository.save(page);
-
         return page.getId();
+    }
+
+    /**
+     * 페이지 상세 조회
+     * @param searchPageRequest pageId
+     * @return Page: title, content, date, nickname
+     */
+    public SearchPageResponse getPage (SearchPageRequest searchPageRequest) {
+        Page page = pageRepository.findById(searchPageRequest.getPageId())
+                .orElseThrow(NotExistPageException::new);
+        return SearchPageResponse.builder()
+                .title(page.getTitle())
+                .content(page.getContent())
+                .date(page.getDate())
+                .nickname(page.getUserInfo().getNickname())
+                .build();
     }
 
 }
