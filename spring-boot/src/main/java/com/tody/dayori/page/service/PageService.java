@@ -4,6 +4,7 @@ import com.tody.dayori.diary.domain.Diary;
 import com.tody.dayori.diary.repository.DiaryRepository;
 import com.tody.dayori.page.domain.Page;
 import com.tody.dayori.page.dto.CreatePageRequest;
+import com.tody.dayori.page.dto.DeletePageRequest;
 import com.tody.dayori.page.dto.SearchPageRequest;
 import com.tody.dayori.page.dto.SearchPageResponse;
 import com.tody.dayori.page.exception.NotExistPageException;
@@ -58,6 +59,18 @@ public class PageService {
                 .date(page.getDate())
                 .nickname(page.getUserInfo().getNickname())
                 .build();
+    }
+
+    /**
+     * 페이지 삭제
+     * @param deletePageRequest pageId
+     */
+    @Transactional
+    public void deletePage (DeletePageRequest deletePageRequest) {
+        Page page = pageRepository.findById(deletePageRequest.getPageId())
+                .orElseThrow(NotExistPageException::new);
+        // 삭제 권한 확인 (parameter: email)
+        pageRepository.deleteById(page.getId());
     }
 
 }
