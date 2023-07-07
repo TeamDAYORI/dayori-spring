@@ -1,5 +1,8 @@
 package com.tody.dayori.page.service;
 
+import com.tody.dayori.comment.domain.Comment;
+import com.tody.dayori.comment.dto.CommentInfoResponse;
+import com.tody.dayori.comment.repository.CommentRepository;
 import com.tody.dayori.diary.domain.Diary;
 import com.tody.dayori.diary.repository.DiaryRepository;
 import com.tody.dayori.page.domain.Page;
@@ -12,10 +15,13 @@ import com.tody.dayori.page.repository.PageRepository;
 import com.tody.dayori.user.domain.User;
 import com.tody.dayori.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -24,6 +30,7 @@ import java.util.Optional;
 public class PageService {
 
     private final PageRepository pageRepository;
+    private final CommentRepository commentRepository;
 
     /**
      * 페이지 생성
@@ -48,21 +55,41 @@ public class PageService {
     /**
      * 페이지 상세 조회
      * @param searchPageRequest pageId
-     * @return Page: title, content, date, nickname
+     * @return Page: title, content, date, nickname, comments
      */
     public SearchPageResponse getPage (SearchPageRequest searchPageRequest) {
         Page page = pageRepository.findById(searchPageRequest.getPageId())
                 .orElseThrow(NotExistPageException::new);
+        List<Comment> commentList = commentRepository.findCommentsByPageId(page.getId());
+        List<CommentInfoResponse> commentsResponseList = new ArrayList<>();
+
+        for (Comment comment : commentList) {
+            commentsResponseList.add(
+                    CommentInfoResponse
+                            .builder()
+                            .username(comment.getUserInfo().getNickname())
+                            .userImg(comment.getUserInfo().getUserImgUrl())
+                            .date(comment.getDate())
+                            .content(comment.getContent())
+                            .build());
+        }
+
         return SearchPageResponse.builder()
                 .title(page.getTitle())
                 .content(page.getContent())
                 .date(page.getDate())
                 .nickname(page.getUserInfo().getNickname())
+                .comments(commentsResponseList)
                 .build();
     }
 
+    public Page findPageById (Long pageId) {
+        return pageRepository.findById(pageId)
+                .orElseThrow(() -> new IllegalStateException());
+    }
+
     /**
-     * 페이지 삭제
+     * 페이지 삭제 (+ 페이지에 달린 댓글 삭제)
      * @param deletePageRequest pageId
      */
     @Transactional
@@ -71,6 +98,7 @@ public class PageService {
                 .orElseThrow(NotExistPageException::new);
         // 삭제 권한 확인 (parameter: email)
         pageRepository.deleteById(page.getId());
+        commentRepository.deleteCommentsByPageId(page.getId());
     }
 
 }
