@@ -4,25 +4,18 @@ import com.tody.dayori.comment.domain.Comment;
 import com.tody.dayori.comment.dto.CommentInfoResponse;
 import com.tody.dayori.comment.repository.CommentRepository;
 import com.tody.dayori.diary.domain.Diary;
-import com.tody.dayori.diary.repository.DiaryRepository;
 import com.tody.dayori.page.domain.Page;
-import com.tody.dayori.page.dto.CreatePageRequest;
-import com.tody.dayori.page.dto.DeletePageRequest;
-import com.tody.dayori.page.dto.SearchPageRequest;
-import com.tody.dayori.page.dto.SearchPageResponse;
-import com.tody.dayori.page.exception.NotExistPageException;
+import com.tody.dayori.page.dto.*;
+import com.tody.dayori.page.exception.PageNotFoundException;
 import com.tody.dayori.page.repository.PageRepository;
 import com.tody.dayori.user.domain.User;
-import com.tody.dayori.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @Transactional(readOnly = true)
@@ -59,7 +52,7 @@ public class PageService {
      */
     public SearchPageResponse getPage (SearchPageRequest searchPageRequest) {
         Page page = pageRepository.findById(searchPageRequest.getPageId())
-                .orElseThrow(NotExistPageException::new);
+                .orElseThrow(PageNotFoundException::new);
         List<Comment> commentList = commentRepository.findCommentsByPageId(page.getId());
         List<CommentInfoResponse> commentsResponseList = new ArrayList<>();
 
@@ -85,7 +78,19 @@ public class PageService {
 
     public Page findPageById (Long pageId) {
         return pageRepository.findById(pageId)
-                .orElseThrow(() -> new IllegalStateException());
+                .orElseThrow(IllegalStateException::new);
+    }
+
+    /**
+     * 페이지 수정
+     * @param updatePageRequest title, content
+     */
+    @Transactional
+    public void updatePage (UpdatePageRequest updatePageRequest) {
+        Page page = pageRepository.findById(updatePageRequest.getPageId())
+                .orElseThrow(PageNotFoundException::new);
+        // 변경 권한 확인
+        page.update(updatePageRequest.getTitle(), updatePageRequest.getContent());
     }
 
     /**
@@ -95,7 +100,7 @@ public class PageService {
     @Transactional
     public void deletePage (DeletePageRequest deletePageRequest) {
         Page page = pageRepository.findById(deletePageRequest.getPageId())
-                .orElseThrow(NotExistPageException::new);
+                .orElseThrow(PageNotFoundException::new);
         // 삭제 권한 확인 (parameter: email)
         pageRepository.deleteById(page.getId());
         commentRepository.deleteCommentsByPageId(page.getId());
