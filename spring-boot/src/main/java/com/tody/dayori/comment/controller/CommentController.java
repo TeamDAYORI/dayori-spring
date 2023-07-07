@@ -2,6 +2,7 @@ package com.tody.dayori.comment.controller;
 
 import com.tody.dayori.comment.dto.CreateCommentRequest;
 import com.tody.dayori.comment.dto.DeleteCommentRequest;
+import com.tody.dayori.comment.dto.UpdateCommentRequest;
 import com.tody.dayori.comment.service.CommentService;
 import com.tody.dayori.common.dto.BaseResponse;
 import com.tody.dayori.page.domain.Page;
@@ -35,7 +36,16 @@ public class CommentController {
                 CREATE_COMMENT_SUCCESS_MESSAGE,
                 commentService.createComment(createCommentRequest, user, page)),
                 HttpStatus.OK);
+    }
 
+    @PutMapping
+    public ResponseEntity<BaseResponse> updateComment (@RequestBody UpdateCommentRequest updateCommentRequest) {
+        // 수정 권한 확인
+        commentService.updateComment(updateCommentRequest);
+        return new ResponseEntity<>(BaseResponse.from(
+                true,
+                UPDATE_COMMENT_SUCCESS_MESSAGE),
+                HttpStatus.OK);
     }
 
     @DeleteMapping

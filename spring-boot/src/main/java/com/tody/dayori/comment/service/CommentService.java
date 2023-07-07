@@ -3,6 +3,8 @@ package com.tody.dayori.comment.service;
 import com.tody.dayori.comment.domain.Comment;
 import com.tody.dayori.comment.dto.CreateCommentRequest;
 import com.tody.dayori.comment.dto.DeleteCommentRequest;
+import com.tody.dayori.comment.dto.UpdateCommentRequest;
+import com.tody.dayori.comment.exception.CommentNotFoundException;
 import com.tody.dayori.comment.repository.CommentRepository;
 import com.tody.dayori.page.domain.Page;
 import com.tody.dayori.user.domain.User;
@@ -12,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
+import java.util.NoSuchElementException;
 
 @Service
 @Transactional(readOnly = true)
@@ -33,9 +36,16 @@ public class CommentService {
     }
 
     @Transactional
+    public void updateComment (UpdateCommentRequest updateCommentRequest) {
+        Comment comment = commentRepository.findById(updateCommentRequest.getCommentId())
+                .orElseThrow(CommentNotFoundException::new);
+        comment.update(updateCommentRequest.getContent());
+    }
+
+    @Transactional
     public void deleteComment (DeleteCommentRequest deleteCommentRequest, User user) {
         Comment comment = commentRepository.findById(deleteCommentRequest.getCommentId())
-                .orElseThrow(IllegalArgumentException::new);
+                .orElseThrow(CommentNotFoundException::new);
         // 권한 확인
         commentRepository.deleteById(comment.getId());
     }
