@@ -1,6 +1,7 @@
 package com.tody.dayori.diary.dto;
 
 import com.tody.dayori.diary.domain.Diary;
+import com.tody.dayori.diary.domain.UserDiary;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;

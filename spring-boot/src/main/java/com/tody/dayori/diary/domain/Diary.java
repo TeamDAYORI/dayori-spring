@@ -4,6 +4,8 @@ import lombok.*;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -35,8 +37,8 @@ public class Diary extends BaseEntity{
 
     private String diaryPassword;
 
-//    @OneToMany(mappedBy = "tb_diary", cascade = CascadeType.ALL, orphanRemoval = true)
-//    private List<Page> pages = new ArrayList<>();
+    @OneToMany(mappedBy = "diary")
+    private List<UserDiary> userDiaryList = new ArrayList<>();
 
     public static Diary create(String title, String cover, Integer duration, String password) {
         Diary diary = new Diary();
@@ -52,5 +54,9 @@ public class Diary extends BaseEntity{
         this.diaryTitle = title;
         this.diaryDuration = duration;
     }
+
+//    public void addDiary(UserDiary diary) {
+//        this.userDiaryList.add(diary);
+//    }
 
 }
