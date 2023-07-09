@@ -6,6 +6,7 @@ import com.tody.dayori.diary.service.DiaryService;
 import com.tody.dayori.page.dto.CreatePageRequest;
 import com.tody.dayori.page.dto.DeletePageRequest;
 import com.tody.dayori.page.dto.SearchPageRequest;
+import com.tody.dayori.page.dto.UpdatePageRequest;
 import com.tody.dayori.page.service.PageService;
 import com.tody.dayori.user.domain.User;
 import com.tody.dayori.user.service.UserService;
@@ -45,6 +46,15 @@ public class PageController {
                 true,
                 SEARCH_PAGE_SUCCESS_MESSAGE,
                 pageService.getPage(searchPageRequest)),
+                HttpStatus.OK);
+    }
+
+    @PutMapping
+    public ResponseEntity<BaseResponse> updatePage (@RequestBody UpdatePageRequest updatePageRequest) {
+        pageService.updatePage(updatePageRequest);
+        return new ResponseEntity<>(BaseResponse.from(
+                true,
+                UPDATE_PAGE_SUCCESS_MESSAGE),
                 HttpStatus.OK);
     }
 

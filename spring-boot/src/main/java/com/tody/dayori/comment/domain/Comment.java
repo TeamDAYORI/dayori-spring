@@ -44,4 +44,8 @@ public class Comment {
         this.userInfo = userInfo;
         this.page = page;
     }
+
+    public void update (String content) {
+        this.content = content;
+    }
 }

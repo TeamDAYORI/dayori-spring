@@ -7,8 +7,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import static com.tody.dayori.page.constant.PageConstant.NOT_EXIST_PAGE_MESSAGE;
 
 @ResponseStatus(HttpStatus.BAD_REQUEST)
-public class NotExistPageException extends BadRequestException {
-    public NotExistPageException() {
+public class PageNotFoundException extends BadRequestException {
+    public PageNotFoundException() {
         super(NOT_EXIST_PAGE_MESSAGE);
     }
 }

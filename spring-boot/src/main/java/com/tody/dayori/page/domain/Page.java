@@ -45,4 +45,9 @@ public class Page {
         this.userInfo = userInfo;
         this.diary = diary;
     }
+
+    public void update (String title, String content) {
+        this.title = title;
+        this.content = content;
+    }
 }
