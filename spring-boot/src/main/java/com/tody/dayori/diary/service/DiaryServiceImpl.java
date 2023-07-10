@@ -6,6 +6,7 @@ import com.tody.dayori.diary.dto.CreateDiaryRequest;
 import com.tody.dayori.diary.repository.DiaryRepository;
 import com.tody.dayori.diary.repository.UserDiaryRepository;
 import com.tody.dayori.user.domain.User;
+import com.tody.dayori.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,21 +23,19 @@ public class DiaryServiceImpl implements DiaryService{
 
     private final DiaryRepository diaryRepository;
     private final UserDiaryRepository userDiaryRepository;
+    private final UserRepository userRepository;
 
     @PersistenceContext
     EntityManager em;
 
     @Transactional
-    public Long create(CreateDiaryRequest request, User user) {
+    public Long create(CreateDiaryRequest request) {
         Diary diary = Diary.create(request.getTitle(), request.getCover(), request.getDuration(), request.getPassword());
-
-        Long dSeq = diaryRepository.save(diary).getDiarySeq();
-        Diary diary1 = diaryRepository.findById(dSeq)
-                .orElseThrow(EntityNotFoundException::new);
-//        UserDiary userDiary = UserDiary.create(user, diary1);
-//        userDiaryRepository.save(userDiary);
-        userDiaryRepository.save(UserDiary.create(user, diary1));
-        return dSeq;
+        diaryRepository.save(diary);
+        User user = userRepository.findById(2L).orElseThrow(EntityNotFoundException::new);
+        UserDiary ud = UserDiary.create(user, diary);
+        userDiaryRepository.save(ud);
+        return diary.getDiarySeq();
     }
 
     @Transactional

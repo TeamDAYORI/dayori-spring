@@ -16,7 +16,6 @@ import java.io.Serializable;
 @EntityListeners(AuditingEntityListener.class)
 @Table(name = "tb_user_diary")
 @Entity
-@IdClass(UserDiary.class)
 public class UserDiary implements Serializable {
 
     @Id
@@ -25,12 +24,12 @@ public class UserDiary implements Serializable {
 
 //    @Id
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user")
+    @JoinColumn(name = "user_seq")
     private User user;
 
 //    @Id
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "diary")
+    @JoinColumn(name = "diary_seq")
     private Diary diary;
 
     // 0: 생성자, 1: 관리자, 2: 편집자

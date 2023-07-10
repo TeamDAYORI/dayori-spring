@@ -26,9 +26,7 @@ public class DiaryController {
 
     @PostMapping("/diary")
     public ResponseEntity<BaseResponse> createDiary(@RequestBody CreateDiaryRequest request){
-        User user = new User();
-        user.setUserSeq(2L);
-        Long diaryId = diaryService.create(request, user);
+        Long diaryId = diaryService.create(request);
         Map<String, Long> response = new HashMap<>();
         response.put("diaryId", diaryId);
         return new ResponseEntity<>(BaseResponse.from(
