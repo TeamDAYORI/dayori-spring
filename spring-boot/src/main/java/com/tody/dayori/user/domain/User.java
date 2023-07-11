@@ -1,8 +1,11 @@
 package com.tody.dayori.user.domain;
 
+import com.tody.dayori.diary.domain.UserDiary;
 import lombok.Data;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "tb_user")
@@ -11,7 +14,7 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long userSeq;
+    private Long userSeq;
 
     private String userEmail;
 
@@ -19,4 +22,10 @@ public class User {
 
     private String userImgUrl;
 
+    @OneToMany(mappedBy = "user")
+    private List<UserDiary> userDiaryList = new ArrayList<>();
+
+    public void addDiary(UserDiary user) {
+        this.userDiaryList.add(user);
+    }
 }

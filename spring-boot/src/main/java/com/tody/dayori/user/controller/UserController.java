@@ -17,7 +17,7 @@ public class UserController {
     @GetMapping("/user")
     public ResponseEntity<User> user() {
         User user = new User();
-        user.setUserSeq(2);
+        user.setUserSeq(2L);
 
         try {
             user = userService.getUser(user);

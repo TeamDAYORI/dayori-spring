@@ -30,7 +30,7 @@ public class PageController {
     @PostMapping
     public ResponseEntity<BaseResponse> createPage (@RequestBody CreatePageRequest createPageRequest) {
         User user = new User();
-        user.setUserSeq(2);
+        user.setUserSeq(2L);
         Diary diary = diaryService.getDiary(createPageRequest.getDiaryId());
 
         return new ResponseEntity<>(BaseResponse.from(
