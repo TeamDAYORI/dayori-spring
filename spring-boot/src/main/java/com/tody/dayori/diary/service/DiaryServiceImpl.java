@@ -43,4 +43,11 @@ public class DiaryServiceImpl implements DiaryService{
         Optional<Diary> result = diaryRepository.findById(diaryId);
         return result.orElseThrow(NullPointerException::new);
     }
+
+    @Transactional
+    public String getInvCode(Long diaryId) {
+        Diary diary = diaryRepository.findById(diaryId)
+                .orElseThrow(EntityNotFoundException::new);
+        return diary.getInvitationCode();
+    }
 }

@@ -18,12 +18,5 @@ public class CreateDiaryRequest {
     private Integer duration;
     private String password;
 
-    public Diary toEntity() {
-        return Diary.builder()
-                .diaryTitle(title)
-                .diaryCover(cover)
-                .diaryDuration(duration)
-                .diaryPassword(password)
-                .build();
-    }
 }
+
