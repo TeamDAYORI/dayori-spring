@@ -1,17 +1,21 @@
 package com.tody.dayori.diary.service;
 
+import com.tody.dayori.common.exception.DuplicateException;
+import com.tody.dayori.common.exception.NotFoundException;
 import com.tody.dayori.common.exception.NotMatchException;
 import com.tody.dayori.diary.domain.Diary;
 import com.tody.dayori.diary.domain.UserDiary;
 import com.tody.dayori.diary.dto.CreateDiaryRequest;
+import com.tody.dayori.diary.dto.DiaryResponse;
 import com.tody.dayori.diary.dto.JoinDiaryRequest;
+import com.tody.dayori.diary.dto.UpdateDiaryRequest;
 import com.tody.dayori.diary.repository.DiaryRepository;
 import com.tody.dayori.diary.repository.UserDiaryRepository;
+import com.tody.dayori.page.domain.Page;
 import com.tody.dayori.user.domain.User;
 import com.tody.dayori.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.apache.tomcat.util.codec.binary.Base64;
-import org.hibernate.DuplicateMappingException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,9 +23,10 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.PersistenceContext;
 import java.nio.charset.StandardCharsets;
-import java.util.DuplicateFormatFlagsException;
+import java.util.List;
+import java.util.stream.Collectors;
 import java.util.Optional;
-import java.util.UUID;
+
 
 @Service
 @RequiredArgsConstructor
@@ -69,7 +74,7 @@ public class DiaryServiceImpl implements DiaryService{
         User user = userRepository.findById(5L).orElseThrow(EntityNotFoundException::new);
         UserDiary userDiary = userDiaryRepository.findByUserAndDiary(user, diary);
         if (userDiary != null) {
-            throw new DuplicateFormatFlagsException(String.format("%s는 이미 가입된 다이어리입니다.", diary.getDiaryTitle()));
+            throw new DuplicateException(String.format("%s는 이미 가입된 다이어리입니다.", diary.getDiaryTitle()));
         } else {
             if (request.getPassword().equals(diary.getDiaryPassword())){
                 UserDiary ud = UserDiary.create(user, diary);
@@ -78,6 +83,26 @@ public class DiaryServiceImpl implements DiaryService{
                 throw new NotMatchException(NotMatchException.PASSWORD_NOT_MATCH);
             }
         }
+    }
 
+
+    @Transactional
+    public List<DiaryResponse> getDiaryList() {
+        User user = userRepository.findById(2L).orElseThrow(EntityNotFoundException::new);
+        List<DiaryResponse> diaries = userDiaryRepository.findByUser(user).stream()
+                .map(DiaryResponse::response)
+                .collect(Collectors.toList());
+        return diaries;
+    }
+
+    @Transactional
+    public void update(Long diaryId, UpdateDiaryRequest request) {
+        User user = userRepository.findById(2L).orElseThrow(EntityNotFoundException::new);
+        Diary diary = diaryRepository.findById(diaryId)
+                .orElseThrow(EntityNotFoundException::new);
+        UserDiary ud = userDiaryRepository.findByUserAndDiary(user, diary);
+        if (ud != null) {
+            ud.update(request.getTitle(), request.getCover());
+        }
     }
 }

@@ -7,12 +7,8 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class CreateDiaryRequest {
+public class UpdateDiaryRequest {
 
     private String title;
     private String cover;
-    private Integer duration;
-    private String password;
-
 }
-

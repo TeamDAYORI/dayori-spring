@@ -4,16 +4,20 @@ import com.tody.dayori.common.dto.BaseResponse;
 import com.tody.dayori.diary.domain.UserDiary;
 import com.tody.dayori.diary.dto.CreateDiaryRequest;
 import com.tody.dayori.diary.dto.JoinDiaryRequest;
+import com.tody.dayori.diary.dto.UpdateDiaryRequest;
+import com.tody.dayori.diary.service.DiaryService;
 import com.tody.dayori.diary.service.DiaryServiceImpl;
 import com.tody.dayori.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.apache.tomcat.util.codec.binary.Base64;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import static com.tody.dayori.page.constant.PageConstant.CREATE_PAGE_SUCCESS_MESSAGE;
 
@@ -60,6 +64,18 @@ public class DiaryController {
                 HttpStatus.OK);
     }
 
+    @PostMapping("/diaryList")
+    public ResponseEntity<?> getDiaryList(){
+        return ResponseEntity.ok(diaryService.getDiaryList());
+    }
 
+    @PutMapping("/{diaryId}")
+    public ResponseEntity<?> updateDiary(
+            @PathVariable Long diaryId,
+            @RequestBody UpdateDiaryRequest request
+            ){
+        diaryService.update(diaryId, request);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
 
 }

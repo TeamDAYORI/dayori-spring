@@ -22,43 +22,35 @@ public class UserDiary implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userDiarySeq;
 
-//    @Id
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_seq")
     private User user;
 
-//    @Id
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "diary_seq")
     private Diary diary;
 
-    // 0: 생성자, 1: 관리자, 2: 편집자
+    // 0: 관리자X, 1: 관리자
     @Column(nullable = false)
     private Integer groupAuth;
 
+    private String userTitle;
+    private String userCover;
+
     public static UserDiary create(User user, Diary diary) {
         UserDiary userDiary = new UserDiary();
-        userDiary.groupAuth = 0;
+        userDiary.groupAuth = 1;
         userDiary.user = user;
         userDiary.diary = diary;
+        userDiary.userTitle = diary.getDiaryTitle();
+        userDiary.userCover = diary.getDiaryCover();
         return userDiary;
     }
 
-//    public UserDiary(User user, Diary diary) {
-//        setUser(user);
-//        setDiary(diary);
-//        this.groupAuth = 0;
-//    }
-//
-//    private void setUser(User user) {
-//        this.user = user;
-//        user.addDiary(this);
-//    }
-//    private void setDiary(Diary diary) {
-//        this.diary = diary;
-//        diary.addDiary(this);
-//    }
-
+    public void update(String title, String cover) {
+        this.userCover = cover;
+        this.userTitle = title;
+    }
 
 
 }
