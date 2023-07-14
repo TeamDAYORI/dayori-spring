@@ -3,6 +3,7 @@ package com.tody.dayori.diary.controller;
 import com.tody.dayori.common.dto.BaseResponse;
 import com.tody.dayori.diary.domain.UserDiary;
 import com.tody.dayori.diary.dto.CreateDiaryRequest;
+import com.tody.dayori.diary.dto.JoinDiaryRequest;
 import com.tody.dayori.diary.service.DiaryServiceImpl;
 import com.tody.dayori.user.domain.User;
 import lombok.RequiredArgsConstructor;
@@ -44,13 +45,14 @@ public class DiaryController {
 
     @PostMapping("/join/{invCode}")
     public ResponseEntity<BaseResponse> joinDiary(
-            @PathVariable("invCode") String invCode
+            @PathVariable("invCode") String invCode,
+            @RequestBody JoinDiaryRequest request
             ){
         byte[] base64Bytes = invCode.getBytes();
         byte[] idBytes = Base64.decodeBase64(base64Bytes);
         String idString = new String(idBytes);
         Long diaryId = Long.parseLong(idString);
-        diaryService.joinDiary(diaryId);
+        diaryService.joinDiary(diaryId, request);
         return new ResponseEntity<>(BaseResponse.from(
                 true,
                 CREATE_PAGE_SUCCESS_MESSAGE,
