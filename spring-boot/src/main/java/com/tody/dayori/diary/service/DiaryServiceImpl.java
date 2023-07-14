@@ -9,6 +9,7 @@ import com.tody.dayori.user.domain.User;
 import com.tody.dayori.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.apache.tomcat.util.codec.binary.Base64;
+import org.hibernate.DuplicateMappingException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,6 +17,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.PersistenceContext;
 import java.nio.charset.StandardCharsets;
+import java.util.DuplicateFormatFlagsException;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -62,8 +64,14 @@ public class DiaryServiceImpl implements DiaryService{
     @Transactional
     public void joinDiary(Long diaryId) {
         Diary diary = diaryRepository.findById(diaryId).orElseThrow(EntityNotFoundException::new);
-        User user = userRepository.findById(3L).orElseThrow(EntityNotFoundException::new);
-        UserDiary ud = UserDiary.create(user, diary);
-        userDiaryRepository.save(ud);
+        User user = userRepository.findById(4L).orElseThrow(EntityNotFoundException::new);
+        UserDiary userDiary = userDiaryRepository.findByUserAndDiary(user, diary);
+        if (userDiary != null) {
+            throw new DuplicateFormatFlagsException(String.format("%s는 이미 가입된 다이어리입니다.", diary.getDiaryTitle()));
+        } else {
+            UserDiary ud = UserDiary.create(user, diary);
+            userDiaryRepository.save(ud);
+        }
+
     }
 }

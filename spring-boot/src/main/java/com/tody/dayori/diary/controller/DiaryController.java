@@ -43,7 +43,7 @@ public class DiaryController {
     }
 
     @PostMapping("/join/{invCode}")
-    public ResponseEntity<?> joinDiary(
+    public ResponseEntity<BaseResponse> joinDiary(
             @PathVariable("invCode") String invCode
             ){
         byte[] base64Bytes = invCode.getBytes();
@@ -51,7 +51,13 @@ public class DiaryController {
         String idString = new String(idBytes);
         Long diaryId = Long.parseLong(idString);
         diaryService.joinDiary(diaryId);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        return new ResponseEntity<>(BaseResponse.from(
+                true,
+                CREATE_PAGE_SUCCESS_MESSAGE,
+                diaryId),
+                HttpStatus.OK);
     }
+
+
 
 }
