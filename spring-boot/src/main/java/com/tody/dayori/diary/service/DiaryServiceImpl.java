@@ -8,13 +8,16 @@ import com.tody.dayori.diary.repository.UserDiaryRepository;
 import com.tody.dayori.user.domain.User;
 import com.tody.dayori.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.PersistenceContext;
+import java.nio.charset.StandardCharsets;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -35,7 +38,12 @@ public class DiaryServiceImpl implements DiaryService{
         User user = userRepository.findById(2L).orElseThrow(EntityNotFoundException::new);
         UserDiary ud = UserDiary.create(user, diary);
         userDiaryRepository.save(ud);
-        return diary.getDiarySeq();
+        Long id = diary.getDiarySeq();
+        byte[] idBytes = id.toString().getBytes(StandardCharsets.UTF_8);
+        byte[] base64Bytes = Base64.encodeBase64(idBytes);
+        String base64String = new String(base64Bytes, StandardCharsets.UTF_8).trim();
+        diary.addInvCode(base64String);
+        return id;
     }
 
     @Transactional
@@ -49,5 +57,13 @@ public class DiaryServiceImpl implements DiaryService{
         Diary diary = diaryRepository.findById(diaryId)
                 .orElseThrow(EntityNotFoundException::new);
         return diary.getInvitationCode();
+    }
+
+    @Transactional
+    public void joinDiary(Long diaryId) {
+        Diary diary = diaryRepository.findById(diaryId).orElseThrow(EntityNotFoundException::new);
+        User user = userRepository.findById(3L).orElseThrow(EntityNotFoundException::new);
+        UserDiary ud = UserDiary.create(user, diary);
+        userDiaryRepository.save(ud);
     }
 }

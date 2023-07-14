@@ -6,6 +6,7 @@ import com.tody.dayori.diary.dto.CreateDiaryRequest;
 import com.tody.dayori.diary.service.DiaryServiceImpl;
 import com.tody.dayori.user.domain.User;
 import lombok.RequiredArgsConstructor;
+import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -39,8 +40,18 @@ public class DiaryController {
             @PathVariable("diaryId") Long diaryId
             ){
         return ResponseEntity.ok(diaryService.getInvCode(diaryId));
-
     }
 
+    @PostMapping("/join/{invCode}")
+    public ResponseEntity<?> joinDiary(
+            @PathVariable("invCode") String invCode
+            ){
+        byte[] base64Bytes = invCode.getBytes();
+        byte[] idBytes = Base64.decodeBase64(base64Bytes);
+        String idString = new String(idBytes);
+        Long diaryId = Long.parseLong(idString);
+        diaryService.joinDiary(diaryId);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
 
 }

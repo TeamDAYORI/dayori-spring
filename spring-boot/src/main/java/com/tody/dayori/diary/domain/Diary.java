@@ -40,28 +40,25 @@ public class Diary extends BaseEntity{
 
     private String diaryPassword;
 
-    @Column(nullable = false)
     private String invitationCode;
 
     @OneToMany(mappedBy = "diary")
     private List<UserDiary> userDiaryList = new ArrayList<>();
 
-    public static String createInvitationCode(int length) {
-        byte[] uuidBytes = UUID.randomUUID().toString().getBytes(StandardCharsets.UTF_8);
-        byte[] base64Bytes = Base64.encodeBase64(uuidBytes);
-        String base64String = new String(base64Bytes, StandardCharsets.UTF_8).trim();
-        return base64String.substring(0, length);
-    }
 
     public static Diary create(String title, String cover, Integer duration, String password) {
         Diary diary = new Diary();
         diary.diaryTitle = title;
         diary.diaryCover = cover;
         diary.diaryDuration = duration;
-        diary.invitationCode = createInvitationCode(32);
         diary.diaryPassword = password;
         diary.diaryWithdraw = false;
+        diary.invitationCode = "";
         return diary;
+    }
+
+    public void addInvCode(String code) {
+        this.invitationCode = code;
     }
 
     public void update(String title, Integer duration) {
