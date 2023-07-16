@@ -28,7 +28,7 @@ public class CommentController {
     @PostMapping
     public ResponseEntity<BaseResponse> createComment (@RequestBody CreateCommentRequest createCommentRequest) {
         User user = new User();
-        user.setUserSeq(2);
+        user.setUserSeq(2L);
         Page page = pageService.findPageById(createCommentRequest.getPageId());
 
         return new ResponseEntity<>(BaseResponse.from(
@@ -51,7 +51,7 @@ public class CommentController {
     @DeleteMapping
     public ResponseEntity<BaseResponse> deleteComment (@RequestBody DeleteCommentRequest deleteCommentRequest) {
         User user = new User();
-        user.setUserSeq(2);
+        user.setUserSeq(2L);
         // 삭제 권한 확인
         commentService.deleteComment(deleteCommentRequest, user);
         return new ResponseEntity<>(BaseResponse.from(
