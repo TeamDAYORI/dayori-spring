@@ -51,7 +51,7 @@ public class PageController {
 
     @PutMapping
     public ResponseEntity<BaseResponse> updatePage (@RequestBody UpdatePageRequest updatePageRequest) {
-        pageService.updatePage(updatePageRequest);
+        pageService.updatePage(updatePageRequest, 2L);
         return new ResponseEntity<>(BaseResponse.from(
                 true,
                 UPDATE_PAGE_SUCCESS_MESSAGE),
