@@ -12,7 +12,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
-//@RequestMapping("/diary")
 @RequiredArgsConstructor
 public class DiaryController {
 

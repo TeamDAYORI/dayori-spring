@@ -1,8 +1,7 @@
 package com.tody.dayori.comment.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.tody.dayori.page.domain.Page;
-import com.tody.dayori.user.domain.User;
+import com.tody.dayori.auth.entity.User;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;

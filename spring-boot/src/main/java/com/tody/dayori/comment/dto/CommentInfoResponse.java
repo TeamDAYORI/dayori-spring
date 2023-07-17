@@ -1,6 +1,5 @@
 package com.tody.dayori.comment.dto;
 
-import com.tody.dayori.user.domain.User;
 import lombok.Builder;
 import lombok.Getter;
 

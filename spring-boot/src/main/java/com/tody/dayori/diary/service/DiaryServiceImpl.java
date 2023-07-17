@@ -25,8 +25,8 @@ public class DiaryServiceImpl implements DiaryService{
 
 
     @Transactional
-    public Long create(CreateDiaryRequest request) {
-        Diary diary = Diary.create(request.getTitle(), request.getCover(), request.getDuration(), request.getPassword());
+    public Long create(CreateDiaryRequest props   ) {
+        Diary diary = Diary.create(props.getTitle(), props.getCover(), props.getDuration(), props.getPassword());
         return diaryRepository.save(diary).getDiarySeq();
     }
 

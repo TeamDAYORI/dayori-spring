@@ -7,14 +7,12 @@ import com.tody.dayori.comment.dto.UpdateCommentRequest;
 import com.tody.dayori.comment.exception.CommentNotFoundException;
 import com.tody.dayori.comment.repository.CommentRepository;
 import com.tody.dayori.page.domain.Page;
-import com.tody.dayori.user.domain.User;
+import com.tody.dayori.auth.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
-import java.util.NoSuchElementException;
 
 @Service
 @Transactional(readOnly = true)

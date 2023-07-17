@@ -1,10 +1,9 @@
 package com.tody.dayori.page.domain;
 
 import com.tody.dayori.diary.domain.Diary;
-import com.tody.dayori.user.domain.User;
+import com.tody.dayori.auth.entity.User;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
-import org.springframework.data.annotation.CreatedDate;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
