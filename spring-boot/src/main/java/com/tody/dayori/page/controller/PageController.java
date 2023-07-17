@@ -29,7 +29,7 @@ public class PageController {
     @PostMapping
     public ResponseEntity<BaseResponse> createPage (@RequestBody CreatePageRequest createPageRequest) {
         User user = new User();
-        user.setUserSeq(2);
+        user.setUserSeq(2L);
         Diary diary = diaryService.getDiary(createPageRequest.getDiaryId());
 
         return new ResponseEntity<>(BaseResponse.from(
@@ -50,7 +50,7 @@ public class PageController {
 
     @PutMapping
     public ResponseEntity<BaseResponse> updatePage (@RequestBody UpdatePageRequest updatePageRequest) {
-        pageService.updatePage(updatePageRequest);
+        pageService.updatePage(updatePageRequest, 2L);
         return new ResponseEntity<>(BaseResponse.from(
                 true,
                 UPDATE_PAGE_SUCCESS_MESSAGE),

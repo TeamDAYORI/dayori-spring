@@ -7,6 +7,7 @@ import com.tody.dayori.diary.domain.Diary;
 import com.tody.dayori.page.domain.Page;
 import com.tody.dayori.page.dto.*;
 import com.tody.dayori.page.exception.PageNotFoundException;
+import com.tody.dayori.page.exception.PageUnauthorizedException;
 import com.tody.dayori.page.repository.PageRepository;
 import com.tody.dayori.auth.entity.User;
 import lombok.RequiredArgsConstructor;
@@ -78,7 +79,7 @@ public class PageService {
 
     public Page findPageById (Long pageId) {
         return pageRepository.findById(pageId)
-                .orElseThrow(IllegalStateException::new);
+                .orElseThrow(PageNotFoundException::new);
     }
 
     /**
@@ -86,11 +87,12 @@ public class PageService {
      * @param updatePageRequest title, content
      */
     @Transactional
-    public void updatePage (UpdatePageRequest updatePageRequest) {
+    public void updatePage (UpdatePageRequest updatePageRequest, Long userSeq) {
         Page page = pageRepository.findById(updatePageRequest.getPageId())
                 .orElseThrow(PageNotFoundException::new);
-        // 변경 권한 확인
-        page.update(updatePageRequest.getTitle(), updatePageRequest.getContent());
+        if (page.getUserInfo().getUserSeq() == 2L) {
+            page.update(updatePageRequest.getTitle(), updatePageRequest.getContent());
+        } else throw new PageUnauthorizedException();
     }
 
     /**
