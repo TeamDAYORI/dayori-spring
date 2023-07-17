@@ -7,6 +7,7 @@ spring:
   profiles:
     include:
       - db
+      - jwt
   datasource:
     driver-class-name: ${db-driver}
     url: ${db-url}
@@ -22,9 +23,19 @@ spring:
     properties:
       hibernate:
         format_sql: true
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${google-clientId}
+            client-secret: ${google-clientSecret}
+            scope:
+              - profile
+              - email
+            redirect-uri: http://localhost:8080/api/oauth2/callback/google
 
 logging.level:
   org.hibernate:
     sql: debug
     type : trace
-
