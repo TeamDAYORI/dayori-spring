@@ -5,10 +5,12 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.time.LocalDateTime;
 
 @Getter
 //@NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -33,6 +35,10 @@ public class UserDiary implements Serializable {
     // 0: 관리자X, 1: 관리자
     @Column(nullable = false)
     private Integer groupAuth;
+
+    @CreationTimestamp
+    @Column(name="ins_date")
+    private LocalDateTime insDate;
 
     private String userTitle;
     private String userCover;

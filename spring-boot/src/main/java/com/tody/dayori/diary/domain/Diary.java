@@ -2,10 +2,12 @@ package com.tody.dayori.diary.domain;
 
 import lombok.*;
 import org.apache.tomcat.util.codec.binary.Base64;
+import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -26,6 +28,10 @@ public class Diary extends BaseEntity{
 //    @Column(nullable = false)
 //    private String diaryCreator;
 
+    @CreationTimestamp
+    @Column
+    private LocalDateTime diaryCreateAt;
+
     @Column(nullable = false)
     private String diaryTitle;
 
@@ -42,11 +48,14 @@ public class Diary extends BaseEntity{
 
     private String invitationCode;
 
+    @Column(nullable = false)
+    private Long diaryWriter;
+
     @OneToMany(mappedBy = "diary")
     private List<UserDiary> userDiaryList = new ArrayList<>();
 
 
-    public static Diary create(String title, String cover, Integer duration, String password) {
+    public static Diary create(Long userSeq, String title, String cover, Integer duration, String password) {
         Diary diary = new Diary();
         diary.diaryTitle = title;
         diary.diaryCover = cover;
@@ -54,6 +63,7 @@ public class Diary extends BaseEntity{
         diary.diaryPassword = password;
         diary.diaryWithdraw = false;
         diary.invitationCode = "";
+        diary.diaryWriter = userSeq;
         return diary;
     }
 
@@ -66,8 +76,8 @@ public class Diary extends BaseEntity{
         this.diaryDuration = duration;
     }
 
-//    public void addDiary(UserDiary diary) {
-//        this.userDiaryList.add(diary);
-//    }
+    public void updateWriter(Long userSeq) {
+        this.diaryWriter = userSeq;
+    }
 
 }
