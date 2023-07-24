@@ -5,9 +5,12 @@ import com.tody.dayori.diary.domain.UserDiary;
 import com.tody.dayori.user.domain.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 
 public interface UserDiaryRepository extends JpaRepository<UserDiary, Long> {
     UserDiary findByUserAndDiary(User user, Diary diary);
     List<UserDiary> findByUser(User user);
+    List<UserDiary> findAllByDiaryOrderByInsDate(Diary diary);
 }
