@@ -122,17 +122,19 @@ public class DiaryServiceImpl implements DiaryService{
         for (Diary diary : diaries) {
             int duration = diary.getDiaryDuration();
             Long Writer = diary.getDiaryWriter();
-            LocalDateTime createDiaryDate = diary.getDiaryCreateAt();
-            LocalDateTime currentDate = LocalDateTime.now();
-//            Long daysPassed = ChronoUnit.DAYS.between(createDiaryDate, currentDate);
-            Long daysPassed = ChronoUnit.MINUTES.between(createDiaryDate, currentDate);
+            Boolean nextAble = diary.getNextAble();
             User nowUser = userRepository.findById(Writer).orElseThrow(EntityNotFoundException::new);
 
             if (duration > 0) {
-                if (duration == 1) {
-                    // duration이 1인 경우 항상 실행
+                if (duration == 1 || nextAble) {
+                    // duration 이 1인 경우 항상 실행 || duration 상관 없이 nextAble 이 true 면 차례 넘김
                     diary.updateWriter(WhoIsNext(nowUser, diary));
                 } else {
+                    LocalDateTime createDiaryDate = diary.getDiaryCreateAt();
+                    LocalDateTime currentDate = LocalDateTime.now();
+//                  Long daysPassed = ChronoUnit.DAYS.between(createDiaryDate, currentDate);
+                    Long daysPassed = ChronoUnit.MINUTES.between(createDiaryDate, currentDate);
+
                     if (daysPassed % duration == 0) {
                         diary.updateWriter(WhoIsNext(nowUser, diary));
                     }
