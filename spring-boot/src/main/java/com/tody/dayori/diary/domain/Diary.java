@@ -51,6 +51,9 @@ public class Diary extends BaseEntity{
     @Column(nullable = false)
     private Long diaryWriter;
 
+    @Column(nullable = false)
+    private Boolean nextAble;
+
     @OneToMany(mappedBy = "diary")
     private List<UserDiary> userDiaryList = new ArrayList<>();
 
@@ -64,6 +67,7 @@ public class Diary extends BaseEntity{
         diary.diaryWithdraw = false;
         diary.invitationCode = "";
         diary.diaryWriter = userSeq;
+        diary.nextAble = false;
         return diary;
     }
 
@@ -78,6 +82,7 @@ public class Diary extends BaseEntity{
 
     public void updateWriter(Long userSeq) {
         this.diaryWriter = userSeq;
+        this.nextAble = false;
     }
 
 }
