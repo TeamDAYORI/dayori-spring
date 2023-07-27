@@ -9,7 +9,7 @@ import com.tody.dayori.page.dto.*;
 import com.tody.dayori.page.exception.PageNotFoundException;
 import com.tody.dayori.page.exception.PageUnauthorizedException;
 import com.tody.dayori.page.repository.PageRepository;
-import com.tody.dayori.user.domain.User;
+import com.tody.dayori.auth.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -61,7 +61,7 @@ public class PageService {
             commentsResponseList.add(
                     CommentInfoResponse
                             .builder()
-                            .username(comment.getUserInfo().getNickname())
+                            .username(comment.getUserInfo().getUserName())
                             .userImg(comment.getUserInfo().getUserImgUrl())
                             .date(comment.getDate())
                             .content(comment.getContent())
@@ -72,7 +72,7 @@ public class PageService {
                 .title(page.getTitle())
                 .content(page.getContent())
                 .date(page.getDate())
-                .nickname(page.getUserInfo().getNickname())
+                .nickname(page.getUserInfo().getUserName())
                 .comments(commentsResponseList)
                 .build();
     }

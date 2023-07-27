@@ -4,7 +4,6 @@ import com.tody.dayori.diary.domain.Diary;
 import com.tody.dayori.diary.repository.DiaryRepository;
 import com.tody.dayori.page.domain.Page;
 import com.tody.dayori.page.exception.PageNotFoundException;
-import com.tody.dayori.user.domain.User;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

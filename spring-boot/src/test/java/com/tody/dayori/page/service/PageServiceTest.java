@@ -8,7 +8,6 @@ import com.tody.dayori.page.dto.UpdatePageRequest;
 import com.tody.dayori.page.exception.PageNotFoundException;
 import com.tody.dayori.page.exception.PageUnauthorizedException;
 import com.tody.dayori.page.repository.PageRepository;
-import com.tody.dayori.user.domain.User;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

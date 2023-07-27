@@ -1,7 +1,8 @@
 package com.tody.dayori.diary.service;
 
+import com.tody.dayori.auth.entity.User;
+import com.tody.dayori.auth.repository.UserRepository;
 import com.tody.dayori.common.exception.DuplicateException;
-import com.tody.dayori.common.exception.NotFoundException;
 import com.tody.dayori.common.exception.NotMatchException;
 import com.tody.dayori.diary.domain.Diary;
 import com.tody.dayori.diary.domain.UserDiary;
@@ -11,9 +12,6 @@ import com.tody.dayori.diary.dto.JoinDiaryRequest;
 import com.tody.dayori.diary.dto.UpdateDiaryRequest;
 import com.tody.dayori.diary.repository.DiaryRepository;
 import com.tody.dayori.diary.repository.UserDiaryRepository;
-import com.tody.dayori.page.domain.Page;
-import com.tody.dayori.user.domain.User;
-import com.tody.dayori.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -50,7 +48,7 @@ public class DiaryServiceImpl implements DiaryService{
     public Long create(CreateDiaryRequest request) {
         Diary diary = Diary.create(2L, request.getTitle(), request.getCover(), request.getDuration(), request.getPassword());
         diaryRepository.save(diary);
-        User user = userRepository.findById(2L).orElseThrow(EntityNotFoundException::new);
+        com.tody.dayori.auth.entity.User user = userRepository.findById(2L).orElseThrow(EntityNotFoundException::new);
         UserDiary ud = UserDiary.create(user, diary);
         userDiaryRepository.save(ud);
         Long id = diary.getDiarySeq();
@@ -77,7 +75,7 @@ public class DiaryServiceImpl implements DiaryService{
     @Transactional
     public void joinDiary(Long diaryId, JoinDiaryRequest request) {
         Diary diary = diaryRepository.findById(diaryId).orElseThrow(EntityNotFoundException::new);
-        User user = userRepository.findById(5L).orElseThrow(EntityNotFoundException::new);
+        com.tody.dayori.auth.entity.User user = userRepository.findById(5L).orElseThrow(EntityNotFoundException::new);
         UserDiary userDiary = userDiaryRepository.findByUserAndDiary(user, diary);
         if (userDiary != null) {
             throw new DuplicateException(String.format("%s는 이미 가입된 다이어리입니다.", diary.getDiaryTitle()));
