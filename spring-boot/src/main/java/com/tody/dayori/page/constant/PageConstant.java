@@ -13,4 +13,5 @@ public class PageConstant {
     public static final String CREATE_PAGE_FAIL_MESSAGE = "페이지 등록에 실패했습니다.";
     public static final String UNAUTHORIZED_USER_ERROR_MESSAGE = "페이지 수정 및 삭제 권한이 없습니다.";
     public static final String NOT_EXIST_PAGE_MESSAGE = "페이지가 존재하지 않습니다.";
+    public static final String NOT_MY_TURN_MESSAGE = "페이지 작성 순서가 아닙니다.";
 }
