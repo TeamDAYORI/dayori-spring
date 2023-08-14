@@ -34,18 +34,20 @@ public class CommentService {
     }
 
     @Transactional
-    public void updateComment (UpdateCommentRequest updateCommentRequest) {
+    public void updateComment (UpdateCommentRequest updateCommentRequest, User user) {
         Comment comment = commentRepository.findById(updateCommentRequest.getCommentId())
                 .orElseThrow(CommentNotFoundException::new);
-        comment.update(updateCommentRequest.getContent());
+        if (comment.getUserInfo().getUserSeq() == user.getUserSeq()) {
+            comment.update(updateCommentRequest.getContent());
+        } else throw new IllegalStateException("댓글 수정 권한이 없음");
     }
 
     @Transactional
     public void deleteComment (DeleteCommentRequest deleteCommentRequest, User user) {
         Comment comment = commentRepository.findById(deleteCommentRequest.getCommentId())
                 .orElseThrow(CommentNotFoundException::new);
-        // 권한 확인
-        commentRepository.deleteById(comment.getId());
+        if (comment.getUserInfo().getUserSeq() == user.getUserSeq())
+            commentRepository.deleteById(comment.getId());
+        else throw new IllegalStateException("댓글 삭제 권한이 없음");
     }
-
 }

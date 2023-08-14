@@ -1,14 +1,19 @@
 package com.tody.dayori.page.repository;
 
+import com.tody.dayori.auth.entity.User;
+import com.tody.dayori.auth.repository.UserRepository;
 import com.tody.dayori.diary.domain.Diary;
 import com.tody.dayori.diary.repository.DiaryRepository;
 import com.tody.dayori.page.domain.Page;
 import com.tody.dayori.page.exception.PageNotFoundException;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -16,19 +21,22 @@ import static org.junit.jupiter.api.Assertions.*;
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class PageRepositoryTest {
 
-    @Autowired DiaryRepository diaryRepository;
-    @Autowired PageRepository pageRepository;
+    @Autowired private UserRepository userRepository;
+    @Autowired private DiaryRepository diaryRepository;
+    @Autowired private PageRepository pageRepository;
 
     @Test
     @DisplayName("페이지 생성")
     void 페이지_생성() {
         // given
-        User user = new User();
-        user.setUserSeq(2L);
-        final Diary diary = getDiary();
-        diaryRepository.save(diary);
-
+        final User user = User.builder()
+                .userName("test_user")
+                .userEmail("test_email@naver.com")
+                .build();
+        final Diary diary = getDiary(user);
         final Page page = getPage(user, diary);
+        userRepository.save(user);
+        diaryRepository.save(diary);
 
         // when
         Page savedPage = pageRepository.save(page);
@@ -43,27 +51,37 @@ class PageRepositoryTest {
     @DisplayName("페이지 수정")
     void 페이지_수정() {
         // given
-        Page page1 = pageRepository.findById(5L)
-                .orElseThrow(PageNotFoundException::new);
+        final User user = User.builder()
+                .userName("test_user")
+                .userEmail("test_email@naver.com")
+                .build();
+        final Diary diary = getDiary(user);
+        final Page page = getPage(user, diary);
+        userRepository.save(user);
+        diaryRepository.save(diary);
+        Page savedPage = pageRepository.save(page);
+
         String title = "update title";
         String content = "update content";
 
         // when
-        page1.update(title, content);
-        pageRepository.save(page1);
+        savedPage.update(title, content);
+        pageRepository.save(savedPage);
 
         // then
-        assertEquals(page1.getTitle(), title);
-        assertEquals(page1.getContent(), content);
+        assertEquals(savedPage.getTitle(), title);
+        assertEquals(savedPage.getContent(), content);
     }
 
-    private Diary getDiary () {
+    private Diary getDiary (User user) {
         return Diary.builder()
                 .diaryTitle("diary title")
                 .diaryCover("diary cover")
                 .diaryDuration(100)
                 .diaryPassword("diary password")
                 .diaryWithdraw(false)
+                .diaryWriter(user.getUserSeq())
+                .nextAble(false)
                 .build();
     }
 
