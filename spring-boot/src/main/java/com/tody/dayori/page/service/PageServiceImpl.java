@@ -72,7 +72,7 @@ public class PageServiceImpl implements PageService {
             commentsResponseList.add(
                     CommentInfoResponse
                             .builder()
-                            .username(comment.getUserInfo().getUserName())
+                            .username(comment.getUserInfo().getUsername())
                             .userImg(comment.getUserInfo().getUserImgUrl())
                             .date(comment.getDate())
                             .content(comment.getContent())
@@ -83,7 +83,7 @@ public class PageServiceImpl implements PageService {
                 .title(page.getTitle())
                 .content(page.getContent())
                 .date(page.getDate())
-                .nickname(page.getUserInfo().getUserName())
+                .nickname(page.getUserInfo().getUsername())
                 .comments(commentsResponseList)
                 .build();
     }

@@ -7,5 +7,5 @@ public class SignUpRequest {
 
     private String userName;
     private String email;
-    private char[] password;
+    private String password;
 }

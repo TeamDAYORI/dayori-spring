@@ -2,7 +2,7 @@ package com.tody.dayori.auth.controller;
 
 import com.tody.dayori.auth.dto.LoginRequest;
 import com.tody.dayori.auth.dto.AuthResponse;
-import com.tody.dayori.auth.service.JwtProvider;
+import com.tody.dayori.config.JwtProvider;
 import com.tody.dayori.auth.dto.SignUpRequest;
 import com.tody.dayori.auth.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -20,20 +20,14 @@ import java.net.URI;
 public class AuthController {
 
     private final UserService userService;
-    private final JwtProvider jwtProvider;
 
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest loginRequest) {
-        AuthResponse authResponse = userService.login(loginRequest);
-        authResponse.setAccessToken(jwtProvider.createToken(authResponse.getSeq()));
-        return ResponseEntity.ok(authResponse);
+        return ResponseEntity.ok(userService.login(loginRequest));
     }
 
     @PostMapping("/register")
-    public ResponseEntity<AuthResponse> register(@RequestBody SignUpRequest signUpDto) {
-        AuthResponse authResponse = userService.register(signUpDto);
-        authResponse.setAccessToken(jwtProvider.createToken(authResponse.getSeq()));
-        return ResponseEntity.created(URI.create("/users/" + authResponse.getSeq()))
-                .body(authResponse);
+    public ResponseEntity<AuthResponse> register(@RequestBody SignUpRequest signUpRequest) {
+        return ResponseEntity.ok(userService.register(signUpRequest));
     }
 }
