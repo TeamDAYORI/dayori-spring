@@ -7,14 +7,14 @@ import com.tody.dayori.common.exception.NotMatchException;
 import com.tody.dayori.common.util.TokenUtil;
 import com.tody.dayori.diary.domain.Diary;
 import com.tody.dayori.diary.domain.UserDiary;
-import com.tody.dayori.diary.dto.CreateDiaryRequest;
-import com.tody.dayori.diary.dto.DiaryResponse;
-import com.tody.dayori.diary.dto.JoinDiaryRequest;
-import com.tody.dayori.diary.dto.UpdateDiaryRequest;
+import com.tody.dayori.diary.dto.*;
 import com.tody.dayori.diary.repository.DiaryRepository;
 import com.tody.dayori.diary.repository.UserDiaryRepository;
 import lombok.RequiredArgsConstructor;
 import org.apache.tomcat.util.codec.binary.Base64;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -34,6 +34,7 @@ import java.util.Optional;
 
 
 @Service
+@CacheConfig(cacheNames = "userSearchCache")
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class DiaryServiceImpl implements DiaryService{
@@ -177,7 +178,15 @@ public class DiaryServiceImpl implements DiaryService{
             UserDiary first = userDiaries.get(0);
             return first.getUser().getUserSeq();
         }
-
-
     }
+
+    @Cacheable
+    public List<SearchUserResponse> searchUserByName(String userName) {
+        List<SearchUserResponse> users = userRepository.findByUserNameStartsWith(userName)
+                .stream()
+                .map(SearchUserResponse::response)
+                .collect(Collectors.toList());
+        return users;
+    }
+
 }

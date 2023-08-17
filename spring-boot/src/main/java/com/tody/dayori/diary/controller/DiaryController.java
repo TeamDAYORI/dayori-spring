@@ -1,8 +1,10 @@
 package com.tody.dayori.diary.controller;
 
+import com.tody.dayori.auth.entity.User;
 import com.tody.dayori.common.dto.BaseResponse;
 import com.tody.dayori.diary.dto.CreateDiaryRequest;
 import com.tody.dayori.diary.dto.JoinDiaryRequest;
+import com.tody.dayori.diary.dto.SearchUserResponse;
 import com.tody.dayori.diary.dto.UpdateDiaryRequest;
 import com.tody.dayori.diary.service.DiaryServiceImpl;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static com.tody.dayori.diary.constant.DiaryConstant.*;
@@ -80,6 +83,10 @@ public class DiaryController {
                 diaryId),
                 HttpStatus.OK);
     }
-    }
 
+    @GetMapping("/search")
+    public List<SearchUserResponse> searchUsers(@RequestParam String userName) {
+        return diaryService.searchUserByName(userName);
+    }
 }
+
