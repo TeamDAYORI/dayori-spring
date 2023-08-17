@@ -182,7 +182,7 @@ public class DiaryServiceImpl implements DiaryService{
 
     @Cacheable
     public List<SearchUserResponse> searchUserByName(String userName) {
-        List<SearchUserResponse> users = userRepository.findByUserNameStartsWith(userName)
+        List<SearchUserResponse> users = userRepository.findByNickNameStartsWith(userName)
                 .stream()
                 .map(SearchUserResponse::response)
                 .collect(Collectors.toList());

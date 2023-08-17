@@ -12,14 +12,14 @@ import lombok.NoArgsConstructor;
 public class SearchUserResponse {
 
     Long UserSeq;
-    String UserName;
+    String NickName;
     String UserEmail;
 
     public static SearchUserResponse response(User user){
         SearchUserResponse ur = new SearchUserResponse();
         ur.UserSeq = user.getUserSeq();
         ur.UserEmail = user.getUserEmail();
-        ur.UserName = user.getUsername();
+        ur.NickName = user.getNickName();
         return ur;
     }
 }
