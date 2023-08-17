@@ -4,6 +4,7 @@ import com.tody.dayori.auth.entity.User;
 import com.tody.dayori.auth.repository.UserRepository;
 import com.tody.dayori.common.exception.DuplicateException;
 import com.tody.dayori.common.exception.NotMatchException;
+import com.tody.dayori.common.util.TokenUtil;
 import com.tody.dayori.diary.domain.Diary;
 import com.tody.dayori.diary.domain.UserDiary;
 import com.tody.dayori.diary.dto.CreateDiaryRequest;
@@ -46,9 +47,10 @@ public class DiaryServiceImpl implements DiaryService{
 
     @Transactional
     public Long create(CreateDiaryRequest request) {
-        Diary diary = Diary.create(2L, request.getTitle(), request.getCover(), request.getDuration(), request.getPassword());
+        Long userSeq = TokenUtil.getCurrentUserSeq();
+        Diary diary = Diary.create(userSeq, request.getTitle(), request.getCover(), request.getDuration(), request.getPassword());
         diaryRepository.save(diary);
-        com.tody.dayori.auth.entity.User user = userRepository.findById(2L).orElseThrow(EntityNotFoundException::new);
+        com.tody.dayori.auth.entity.User user = userRepository.findById(userSeq).orElseThrow(EntityNotFoundException::new);
         UserDiary ud = UserDiary.create(user, diary);
         userDiaryRepository.save(ud);
         Long id = diary.getDiarySeq();
@@ -74,8 +76,9 @@ public class DiaryServiceImpl implements DiaryService{
 
     @Transactional
     public void joinDiary(Long diaryId, JoinDiaryRequest request) {
+        Long userSeq = TokenUtil.getCurrentUserSeq();
         Diary diary = diaryRepository.findById(diaryId).orElseThrow(EntityNotFoundException::new);
-        com.tody.dayori.auth.entity.User user = userRepository.findById(5L).orElseThrow(EntityNotFoundException::new);
+        com.tody.dayori.auth.entity.User user = userRepository.findById(userSeq).orElseThrow(EntityNotFoundException::new);
         UserDiary userDiary = userDiaryRepository.findByUserAndDiary(user, diary);
         if (userDiary != null) {
             throw new DuplicateException(String.format("%s는 이미 가입된 다이어리입니다.", diary.getDiaryTitle()));
@@ -92,7 +95,8 @@ public class DiaryServiceImpl implements DiaryService{
 
     @Transactional
     public List<DiaryResponse> getDiaryList() {
-        User user = userRepository.findById(2L).orElseThrow(EntityNotFoundException::new);
+        Long userSeq = TokenUtil.getCurrentUserSeq();
+        User user = userRepository.findById(userSeq).orElseThrow(EntityNotFoundException::new);
         List<DiaryResponse> diaries = userDiaryRepository.findByUser(user).stream()
                 .map(DiaryResponse::response)
                 .collect(Collectors.toList());
@@ -101,7 +105,8 @@ public class DiaryServiceImpl implements DiaryService{
 
     @Transactional
     public void update(Long diaryId, UpdateDiaryRequest request) {
-        User user = userRepository.findById(2L).orElseThrow(EntityNotFoundException::new);
+        Long userSeq = TokenUtil.getCurrentUserSeq();
+        User user = userRepository.findById(userSeq).orElseThrow(EntityNotFoundException::new);
         Diary diary = diaryRepository.findById(diaryId)
                 .orElseThrow(EntityNotFoundException::new);
         UserDiary ud = userDiaryRepository.findByUserAndDiary(user, diary);
@@ -138,7 +143,6 @@ public class DiaryServiceImpl implements DiaryService{
                     }
                 }
             }
-            System.out.println("-------------------"+diary.getDiarySeq()+nowUser.getUserSeq()+diary.getDiaryWriter());
         }
         diaryRepository.saveAll(diaries);
 

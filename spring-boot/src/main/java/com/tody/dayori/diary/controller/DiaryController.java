@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.tody.dayori.page.constant.PageConstant.CREATE_PAGE_SUCCESS_MESSAGE;
+import static com.tody.dayori.diary.constant.DiaryConstant.*;
 
 @RestController
 @RequestMapping("/diary")
@@ -30,7 +30,7 @@ public class DiaryController {
         response.put("diaryId", diaryId);
         return new ResponseEntity<>(BaseResponse.from(
                 true,
-                CREATE_PAGE_SUCCESS_MESSAGE,
+                CREATE_DIARY_SUCCESS_MESSAGE,
                 diaryId),
                 HttpStatus.OK);
     }
@@ -54,14 +54,18 @@ public class DiaryController {
         diaryService.joinDiary(diaryId, request);
         return new ResponseEntity<>(BaseResponse.from(
                 true,
-                CREATE_PAGE_SUCCESS_MESSAGE,
+                JOIN_DIARY_SUCCESS_MESSAGE,
                 diaryId),
                 HttpStatus.OK);
     }
 
-    @PostMapping("/diaryList")
+    @GetMapping("/list")
     public ResponseEntity<?> getDiaryList(){
-        return ResponseEntity.ok(diaryService.getDiaryList());
+        return new ResponseEntity<>(BaseResponse.from(
+                true,
+                SEARCH_DIARY_SUCCESS_MESSAGE,
+                diaryService.getDiaryList()),
+                HttpStatus.OK);
     }
 
     @PutMapping("/{diaryId}")
@@ -70,7 +74,12 @@ public class DiaryController {
             @RequestBody UpdateDiaryRequest request
             ){
         diaryService.update(diaryId, request);
-        return ResponseEntity.status(HttpStatus.OK).build();
+        return new ResponseEntity<>(BaseResponse.from(
+                true,
+                UPDATE_DIARY_SUCCESS_MESSAGE,
+                diaryId),
+                HttpStatus.OK);
+    }
     }
 
 }
