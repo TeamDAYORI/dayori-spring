@@ -40,6 +40,10 @@ public class UserDiary implements Serializable {
     @Column(name="ins_date")
     private LocalDateTime insDate;
 
+    // 내가 create하면 1, 초대받았을때 수신자 0으로 추가, 수락하면 1로 변경
+    @Column(nullable = false)
+    private Integer isJoined;
+
     private String userTitle;
     private String userCover;
 
@@ -50,7 +54,23 @@ public class UserDiary implements Serializable {
         userDiary.diary = diary;
         userDiary.userTitle = diary.getDiaryTitle();
         userDiary.userCover = diary.getDiaryCover();
+        userDiary.isJoined = 1;
         return userDiary;
+    }
+
+    public static UserDiary invited(User user, Diary diary) {
+        UserDiary userDiary = new UserDiary();
+        userDiary.groupAuth = 1;
+        userDiary.user = user;
+        userDiary.diary = diary;
+        userDiary.userTitle = diary.getDiaryTitle();
+        userDiary.userCover = diary.getDiaryCover();
+        userDiary.isJoined = 0;
+        return userDiary;
+    }
+
+    public void accept(){
+        this.isJoined = 1;
     }
 
     public void update(String title, String cover) {

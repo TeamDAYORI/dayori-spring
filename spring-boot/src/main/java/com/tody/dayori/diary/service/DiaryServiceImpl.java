@@ -14,20 +14,16 @@ import lombok.RequiredArgsConstructor;
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.PersistenceContext;
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.Optional;
@@ -54,12 +50,20 @@ public class DiaryServiceImpl implements DiaryService{
         com.tody.dayori.auth.entity.User user = userRepository.findById(userSeq).orElseThrow(EntityNotFoundException::new);
         UserDiary ud = UserDiary.create(user, diary);
         userDiaryRepository.save(ud);
-        Long id = diary.getDiarySeq();
-        byte[] idBytes = id.toString().getBytes(StandardCharsets.UTF_8);
-        byte[] base64Bytes = Base64.encodeBase64(idBytes);
-        String base64String = new String(base64Bytes, StandardCharsets.UTF_8).trim();
-        diary.addInvCode(base64String);
-        return id;
+        Long DiaryId = diary.getDiarySeq();
+//        byte[] idBytes = id.toString().getBytes(StandardCharsets.UTF_8);
+//        byte[] base64Bytes = Base64.encodeBase64(idBytes);
+//        String base64String = new String(base64Bytes, StandardCharsets.UTF_8).trim();
+//        diary.addInvCode(base64String);
+        // 초대 부분
+        request.getMembers().stream()
+                .forEach(memberSeq -> {
+                    User member = userRepository.findById(memberSeq).orElseThrow(EntityNotFoundException::new);
+                    UserDiary ud2 = UserDiary.invited(member, diary);
+                    userDiaryRepository.save(ud2);
+                });
+
+        return DiaryId;
     }
 
     @Transactional
@@ -68,28 +72,48 @@ public class DiaryServiceImpl implements DiaryService{
         return result.orElseThrow(NullPointerException::new);
     }
 
-    @Transactional
-    public String getInvCode(Long diaryId) {
-        Diary diary = diaryRepository.findById(diaryId)
-                .orElseThrow(EntityNotFoundException::new);
-        return diary.getInvitationCode();
-    }
+//    @Transactional
+//    public String getInvCode(Long diaryId) {
+//        Diary diary = diaryRepository.findById(diaryId)
+//                .orElseThrow(EntityNotFoundException::new);
+//        return diary.getInvitationCode();
+//    }
 
     @Transactional
-    public void joinDiary(Long diaryId, JoinDiaryRequest request) {
+    public void joinAcceptDiary(Long diaryId, JoinDiaryRequest request) {
         Long userSeq = TokenUtil.getCurrentUserSeq();
         Diary diary = diaryRepository.findById(diaryId).orElseThrow(EntityNotFoundException::new);
         com.tody.dayori.auth.entity.User user = userRepository.findById(userSeq).orElseThrow(EntityNotFoundException::new);
         UserDiary userDiary = userDiaryRepository.findByUserAndDiary(user, diary);
-        if (userDiary != null) {
-            throw new DuplicateException(String.format("%s는 이미 가입된 다이어리입니다.", diary.getDiaryTitle()));
-        } else {
+        // 초대를 받지 않아 userDiary Entity에서 해당정보 찾을 수 없음.
+        if (userDiary == null) {
+            throw new NotMatchException(String.format("%s에 가입할 권한이 없습니다.", diary.getDiaryTitle()));
+        } else if (userDiary.getIsJoined() == 1) { // 혹시 이미 가입된 다이어리라면,
+            throw new DuplicateException(String.format("%s는 이미 가입된 다이어리 입니다.", diary.getDiaryTitle()));
+        } else { // 초대받음
+            // 올바른 비밀번호
             if (request.getPassword().equals(diary.getDiaryPassword())){
-                UserDiary ud = UserDiary.create(user, diary);
-                userDiaryRepository.save(ud);
+                userDiary.accept();
+                userDiaryRepository.save(userDiary);
             } else {
                 throw new NotMatchException(NotMatchException.PASSWORD_NOT_MATCH);
             }
+        }
+    }
+
+    @Transactional
+    public void joinRefuseDiary(Long diaryId) {
+        Long userSeq = TokenUtil.getCurrentUserSeq();
+        Diary diary = diaryRepository.findById(diaryId).orElseThrow(EntityNotFoundException::new);
+        com.tody.dayori.auth.entity.User user = userRepository.findById(userSeq).orElseThrow(EntityNotFoundException::new);
+        UserDiary userDiary = userDiaryRepository.findByUserAndDiary(user, diary);
+        // 초대를 받지 않아 userDiary Entity에서 해당정보 찾을 수 없음.
+        if (userDiary == null) {
+            throw new NotMatchException(String.format("%s에 가입할 권한이 없습니다.", diary.getDiaryTitle()));
+        } else if (userDiary.getIsJoined() == 1) { // 혹시 이미 가입된 다이어리라면,
+            throw new DuplicateException(String.format("%s는 이미 가입된 다이어리 입니다.", diary.getDiaryTitle()));
+        } else{
+            userDiaryRepository.delete(userDiary);
         }
     }
 
@@ -116,8 +140,8 @@ public class DiaryServiceImpl implements DiaryService{
         }
     }
 
-//    @Scheduled(cron = "0 0 0 * * ?") // 매일 자정에 실행
-    @Scheduled(cron = "0 * * * * ?") // 매분 0초에 실행
+    @Scheduled(cron = "0 0 0 * * ?") // 매일 자정에 실행
+//    @Scheduled(cron = "0 * * * * ?") // 매분 0초에 실행
     @Transactional
     public void passDiaryWriter(){
 
@@ -136,8 +160,8 @@ public class DiaryServiceImpl implements DiaryService{
                 } else {
                     LocalDateTime createDiaryDate = diary.getDiaryCreateAt();
                     LocalDateTime currentDate = LocalDateTime.now();
-//                  Long daysPassed = ChronoUnit.DAYS.between(createDiaryDate, currentDate);
-                    Long daysPassed = ChronoUnit.MINUTES.between(createDiaryDate, currentDate);
+                  Long daysPassed = ChronoUnit.DAYS.between(createDiaryDate, currentDate);
+//                    Long daysPassed = ChronoUnit.MINUTES.between(createDiaryDate, currentDate);
 
                     if (daysPassed % duration == 0) {
                         diary.updateWriter(WhoIsNext(nowUser, diary));
@@ -188,5 +212,7 @@ public class DiaryServiceImpl implements DiaryService{
                 .collect(Collectors.toList());
         return users;
     }
+
+
 
 }

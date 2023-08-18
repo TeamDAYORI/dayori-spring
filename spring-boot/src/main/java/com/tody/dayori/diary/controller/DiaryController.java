@@ -38,26 +38,39 @@ public class DiaryController {
                 HttpStatus.OK);
     }
 
-    @GetMapping("/{diaryId}/invcode")
-    public ResponseEntity<?> getInvCode(
-            @PathVariable("diaryId") Long diaryId
-            ){
-        return ResponseEntity.ok(diaryService.getInvCode(diaryId));
-    }
+//    @GetMapping("/{diaryId}/invcode")
+//    public ResponseEntity<?> getInvCode(
+//            @PathVariable("diaryId") Long diaryId
+//            ){
+//        return ResponseEntity.ok(diaryService.getInvCode(diaryId));
+//    }
 
-    @PostMapping("/join/{invCode}")
-    public ResponseEntity<BaseResponse> joinDiary(
-            @PathVariable("invCode") String invCode,
+    @PostMapping("/accept/{diaryId}")
+    public ResponseEntity<BaseResponse> acceptDiary(
+            @PathVariable("diaryId") String diaryId,
             @RequestBody JoinDiaryRequest request
             ){
-        byte[] base64Bytes = invCode.getBytes();
-        byte[] idBytes = Base64.decodeBase64(base64Bytes);
-        String idString = new String(idBytes);
-        Long diaryId = Long.parseLong(idString);
-        diaryService.joinDiary(diaryId, request);
+//        byte[] base64Bytes = invCode.getBytes();
+//        byte[] idBytes = Base64.decodeBase64(base64Bytes);
+//        String idString = new String(idBytes);
+        Long diarySeq = Long.parseLong(diaryId);
+        diaryService.joinAcceptDiary(diarySeq, request);
         return new ResponseEntity<>(BaseResponse.from(
                 true,
                 JOIN_DIARY_SUCCESS_MESSAGE,
+                diaryId),
+                HttpStatus.OK);
+    }
+
+    @PostMapping("/refuse/{diaryId}")
+    public ResponseEntity<BaseResponse> refuseDiary(
+            @PathVariable("diaryId") String diaryId
+    ) {
+        Long diarySeq = Long.parseLong(diaryId);
+        diaryService.joinRefuseDiary(diarySeq);
+        return new ResponseEntity<>(BaseResponse.from(
+                true,
+                REFUSE_DIARY_SUCCESS_MESSAGE,
                 diaryId),
                 HttpStatus.OK);
     }

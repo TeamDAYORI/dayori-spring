@@ -46,8 +46,6 @@ public class Diary extends BaseEntity{
 
     private String diaryPassword;
 
-    private String invitationCode;
-
     @Column(nullable = false)
     private Long diaryWriter;
 
@@ -65,15 +63,11 @@ public class Diary extends BaseEntity{
         diary.diaryDuration = duration;
         diary.diaryPassword = password;
         diary.diaryWithdraw = false;
-        diary.invitationCode = "";
         diary.diaryWriter = userSeq;
         diary.nextAble = false;
         return diary;
     }
 
-    public void addInvCode(String code) {
-        this.invitationCode = code;
-    }
 
     public void update(String title, Integer duration) {
         this.diaryTitle = title;
