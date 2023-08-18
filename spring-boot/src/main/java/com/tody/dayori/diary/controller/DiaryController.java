@@ -97,6 +97,18 @@ public class DiaryController {
                 HttpStatus.OK);
     }
 
+    @DeleteMapping("/{diaryId}")
+    public ResponseEntity<BaseResponse> deleteDiary(
+            @PathVariable Long diaryId
+    ){
+        diaryService.withdraw(diaryId);
+        return new ResponseEntity<>(BaseResponse.from(
+                true,
+                WITHDRAW_DIARY_SUCCESS_MESSAGE,
+                diaryId),
+                HttpStatus.OK);
+    }
+
     @GetMapping("/search")
     public List<SearchUserResponse> searchUsers(@RequestParam String userName) {
         return diaryService.searchUserByName(userName);

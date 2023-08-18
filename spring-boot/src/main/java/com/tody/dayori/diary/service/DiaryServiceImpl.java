@@ -11,7 +11,6 @@ import com.tody.dayori.diary.dto.*;
 import com.tody.dayori.diary.repository.DiaryRepository;
 import com.tody.dayori.diary.repository.UserDiaryRepository;
 import lombok.RequiredArgsConstructor;
-import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -21,7 +20,6 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.PersistenceContext;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -140,6 +138,19 @@ public class DiaryServiceImpl implements DiaryService{
         }
     }
 
+    @Transactional
+    public void withdraw(Long diaryId) {
+        Long userSeq = TokenUtil.getCurrentUserSeq();
+        User user = userRepository.findById(userSeq).orElseThrow(EntityNotFoundException::new);
+        Diary diary = diaryRepository.findById(diaryId)
+                .orElseThrow(EntityNotFoundException::new);
+        UserDiary ud = userDiaryRepository.findByUserAndDiary(user, diary);
+        // 이 부분 분기처리 추가
+        if (ud != null && ud.getIsJoined() == 1) {
+            userDiaryRepository.delete(ud);
+        }
+    }
+
     @Scheduled(cron = "0 0 0 * * ?") // 매일 자정에 실행
 //    @Scheduled(cron = "0 * * * * ?") // 매분 0초에 실행
     @Transactional
@@ -204,6 +215,8 @@ public class DiaryServiceImpl implements DiaryService{
         }
     }
 
+    // 친구 초대할 때 사용하는 유저 검색 기능
+    // 초대하려는 다이어리에 이미 가입된 멤버는 검색대상에서 제외하거나 이미 가입된 멤버라고 보여주는 표시가 필요할 듯,,,
     @Cacheable
     public List<SearchUserResponse> searchUserByName(String userName) {
         List<SearchUserResponse> users = userRepository.findByNickNameStartsWith(userName)
