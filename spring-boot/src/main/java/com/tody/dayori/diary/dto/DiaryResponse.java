@@ -14,6 +14,7 @@ public class DiaryResponse {
     Long DiarySeq;
     String DiaryCover;
     String DiaryTitle;
+    Integer IsJoined;
 
     public static DiaryResponse response(UserDiary userDiary){
         DiaryResponse dr = new DiaryResponse();
@@ -21,6 +22,7 @@ public class DiaryResponse {
         dr.DiarySeq = diary.getDiarySeq();
         dr.DiaryCover = userDiary.getUserCover();
         dr.DiaryTitle = userDiary.getUserTitle();
+        dr.IsJoined = userDiary.getIsJoined();
         return dr;
     }
 

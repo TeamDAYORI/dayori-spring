@@ -165,17 +165,24 @@ public class DiaryServiceImpl implements DiaryService{
             User nowUser = userRepository.findById(Writer).orElseThrow(EntityNotFoundException::new);
 
             if (duration > 0) {
+                Long next = WhoIsNext(nowUser, diary);
+                User nextUser = userRepository.findByUserSeq(next);
+                UserDiary nextUd = userDiaryRepository.findByUserAndDiary(nextUser, diary);
+                UserDiary known = userDiaryRepository.findByUserAndDiary(nowUser, diary);
                 if (duration == 1 || nextAble) {
                     // duration 이 1인 경우 항상 실행 || duration 상관 없이 nextAble 이 true 면 차례 넘김
-                    diary.updateWriter(WhoIsNext(nowUser, diary));
+                    known.revoke();
+                    nextUd.grant();
+                    diary.updateWriter(next);
                 } else {
                     LocalDateTime createDiaryDate = diary.getDiaryCreateAt();
                     LocalDateTime currentDate = LocalDateTime.now();
-                  Long daysPassed = ChronoUnit.DAYS.between(createDiaryDate, currentDate);
+                    Long daysPassed = ChronoUnit.DAYS.between(createDiaryDate, currentDate);
 //                    Long daysPassed = ChronoUnit.MINUTES.between(createDiaryDate, currentDate);
-
                     if (daysPassed % duration == 0) {
-                        diary.updateWriter(WhoIsNext(nowUser, diary));
+                        known.revoke();
+                        nextUd.grant();
+                        diary.updateWriter(next);
                     }
                 }
             }
@@ -186,7 +193,7 @@ public class DiaryServiceImpl implements DiaryService{
 
     public Long WhoIsNext(User user, Diary diary) {
         UserDiary known = userDiaryRepository.findByUserAndDiary(user, diary);
-        List<UserDiary> userDiaries = userDiaryRepository.findAllByDiaryOrderByInsDate(diary);
+        List<UserDiary> userDiaries = userDiaryRepository.findAllByDiaryAndIsJoinedOrderByInsDate(diary, 1);
 
         if (userDiaries.size() == 1) { // 다이어리 가입 멤버가 한명이면 바로 본인 리턴
             return user.getUserSeq();

@@ -44,6 +44,10 @@ public class UserDiary implements Serializable {
     @Column(nullable = false)
     private Integer isJoined;
 
+    // 내 차례면 1, 아니면 0
+    @Column(nullable = false)
+    private Integer myTurn;
+
     private String userTitle;
     private String userCover;
 
@@ -55,6 +59,7 @@ public class UserDiary implements Serializable {
         userDiary.userTitle = diary.getDiaryTitle();
         userDiary.userCover = diary.getDiaryCover();
         userDiary.isJoined = 1;
+        userDiary.myTurn = 1;
         return userDiary;
     }
 
@@ -66,6 +71,7 @@ public class UserDiary implements Serializable {
         userDiary.userTitle = diary.getDiaryTitle();
         userDiary.userCover = diary.getDiaryCover();
         userDiary.isJoined = 0;
+        userDiary.myTurn = 0;
         return userDiary;
     }
 
@@ -76,6 +82,14 @@ public class UserDiary implements Serializable {
     public void update(String title, String cover) {
         this.userCover = cover;
         this.userTitle = title;
+    }
+
+    public void grant() {
+        this.myTurn = 1;
+    }
+
+    public void revoke() {
+        this.myTurn = 0;
     }
 
 

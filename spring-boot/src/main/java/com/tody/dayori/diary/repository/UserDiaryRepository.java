@@ -10,5 +10,5 @@ import java.util.List;
 public interface UserDiaryRepository extends JpaRepository<UserDiary, Long> {
     UserDiary findByUserAndDiary(User user, Diary diary);
     List<UserDiary> findByUser(User user);
-    List<UserDiary> findAllByDiaryOrderByInsDate(Diary diary);
+    List<UserDiary> findAllByDiaryAndIsJoinedOrderByInsDate(Diary diary, Integer isJoined);
 }
