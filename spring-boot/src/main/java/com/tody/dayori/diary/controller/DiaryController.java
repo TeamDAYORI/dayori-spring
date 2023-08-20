@@ -76,7 +76,7 @@ public class DiaryController {
     }
 
     @GetMapping("/list")
-    public ResponseEntity<?> getDiaryList(){
+    public ResponseEntity<BaseResponse> getDiaryList(){
         return new ResponseEntity<>(BaseResponse.from(
                 true,
                 SEARCH_DIARY_SUCCESS_MESSAGE,

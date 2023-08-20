@@ -15,6 +15,7 @@ public class DiaryResponse {
     String DiaryCover;
     String DiaryTitle;
     Integer IsJoined;
+    Integer MyTurn;
 
     public static DiaryResponse response(UserDiary userDiary){
         DiaryResponse dr = new DiaryResponse();
@@ -23,6 +24,7 @@ public class DiaryResponse {
         dr.DiaryCover = userDiary.getUserCover();
         dr.DiaryTitle = userDiary.getUserTitle();
         dr.IsJoined = userDiary.getIsJoined();
+        dr.MyTurn = userDiary.getMyTurn();
         return dr;
     }
 

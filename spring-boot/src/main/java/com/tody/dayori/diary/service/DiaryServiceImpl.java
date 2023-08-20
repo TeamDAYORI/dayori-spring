@@ -22,6 +22,8 @@ import javax.persistence.EntityNotFoundException;
 import javax.persistence.PersistenceContext;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.Optional;
@@ -123,6 +125,11 @@ public class DiaryServiceImpl implements DiaryService{
         List<DiaryResponse> diaries = userDiaryRepository.findByUser(user).stream()
                 .map(DiaryResponse::response)
                 .collect(Collectors.toList());
+        // isJoined가 0인 경우 가장 우선순위, myTurn이 1인 경우 다음 우선순위
+        Collections.sort(diaries, Comparator.comparingInt(DiaryResponse::getMyTurn)
+                .reversed()
+                .thenComparingInt(DiaryResponse::getIsJoined));
+
         return diaries;
     }
 
