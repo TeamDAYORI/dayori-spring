@@ -46,7 +46,7 @@ public class UserServiceImpl implements UserService {
 
     public AuthResponse register(SignUpRequest signUpRequest) {
         User user = User.builder().
-            userName(signUpRequest.getUserName())
+            nickName(signUpRequest.getNickName())
                 .userEmail(signUpRequest.getEmail())
                 .password(passwordEncoder.encode(signUpRequest.getPassword()))
                 .role(Role.USER)
