@@ -11,4 +11,7 @@ public class TokenUtil {
         return user.getUserSeq();
     }
 
+    public static User getCurrentUser() {
+        return (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    }
 }
