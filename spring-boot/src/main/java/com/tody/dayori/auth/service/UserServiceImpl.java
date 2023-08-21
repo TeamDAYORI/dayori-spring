@@ -9,6 +9,7 @@ import com.tody.dayori.auth.dto.AuthResponse;
 import com.tody.dayori.config.JwtProvider;
 import com.tody.dayori.exception.AppException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -20,6 +21,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
@@ -28,14 +30,13 @@ public class UserServiceImpl implements UserService {
     private final AuthenticationManager authenticationManager;
 
     public AuthResponse login(LoginRequest loginRequest) {
-        System.out.println("여기서");
+        log.trace("login 시도!!");
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         loginRequest.getEmail(),
                         loginRequest.getPassword()
                 )
         );
-        System.out.println("터짐");
         User user = userRepository.findByUserEmail(loginRequest.getEmail())
                 .orElseThrow();
         String token = jwtProvider.generateToken(user);

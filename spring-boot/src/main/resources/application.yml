@@ -36,6 +36,7 @@ spring:
             redirect-uri: http://localhost:8080/api/oauth2/callback/google
 
 logging.level:
+  com.tody.dayori: debug
   org.hibernate:
     sql: debug
     type : trace
