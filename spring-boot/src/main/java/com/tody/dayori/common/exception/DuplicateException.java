@@ -1,9 +1,11 @@
 package com.tody.dayori.common.exception;
 
-public class DuplicateException extends RuntimeException {
-    public DuplicateException(){
-        super();
-    }
+import org.springframework.dao.DuplicateKeyException;
+
+public class DuplicateException extends DuplicateKeyException {
+//    public DuplicateException(){
+//        super();
+//    }
     public DuplicateException(String message){
         super(message);
     }

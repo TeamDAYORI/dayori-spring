@@ -95,7 +95,7 @@ public class DiaryServiceImpl implements DiaryService{
             if (request.getPassword().equals(diary.getDiaryPassword())){
                 userDiary.accept();
                 userDiaryRepository.save(userDiary);
-            } else {
+            } else { // 틀린 비밀번호
                 throw new NotMatchException(NotMatchException.PASSWORD_NOT_MATCH);
             }
         }
