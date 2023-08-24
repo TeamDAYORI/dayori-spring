@@ -233,6 +233,9 @@ public class DiaryServiceImpl implements DiaryService{
     // 초대하려는 다이어리에 이미 가입된 멤버는 검색대상에서 제외하거나 이미 가입된 멤버라고 보여주는 표시가 필요할 듯,,,
     @Cacheable
     public List<SearchUserResponse> searchUserByName(String userName) {
+        if (userName.isEmpty()) {
+            return Collections.emptyList(); // 비어있을 경우 빈 리스트 반환
+        }
         List<SearchUserResponse> users = userRepository.findByNickNameStartsWith(userName)
                 .stream()
                 .map(SearchUserResponse::response)
