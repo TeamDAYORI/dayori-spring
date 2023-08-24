@@ -22,6 +22,8 @@ import javax.persistence.EntityNotFoundException;
 import javax.persistence.PersistenceContext;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.Optional;
@@ -93,7 +95,7 @@ public class DiaryServiceImpl implements DiaryService{
             if (request.getPassword().equals(diary.getDiaryPassword())){
                 userDiary.accept();
                 userDiaryRepository.save(userDiary);
-            } else {
+            } else { // 틀린 비밀번호
                 throw new NotMatchException(NotMatchException.PASSWORD_NOT_MATCH);
             }
         }
@@ -123,6 +125,11 @@ public class DiaryServiceImpl implements DiaryService{
         List<DiaryResponse> diaries = userDiaryRepository.findByUser(user).stream()
                 .map(DiaryResponse::response)
                 .collect(Collectors.toList());
+        // isJoined가 0인 경우 가장 우선순위, myTurn이 1인 경우 다음 우선순위
+        Collections.sort(diaries, Comparator.comparingInt(DiaryResponse::getMyTurn)
+                .reversed()
+                .thenComparingInt(DiaryResponse::getIsJoined));
+
         return diaries;
     }
 
@@ -165,17 +172,24 @@ public class DiaryServiceImpl implements DiaryService{
             User nowUser = userRepository.findById(Writer).orElseThrow(EntityNotFoundException::new);
 
             if (duration > 0) {
+                Long next = WhoIsNext(nowUser, diary);
+                User nextUser = userRepository.findByUserSeq(next);
+                UserDiary nextUd = userDiaryRepository.findByUserAndDiary(nextUser, diary);
+                UserDiary known = userDiaryRepository.findByUserAndDiary(nowUser, diary);
                 if (duration == 1 || nextAble) {
                     // duration 이 1인 경우 항상 실행 || duration 상관 없이 nextAble 이 true 면 차례 넘김
-                    diary.updateWriter(WhoIsNext(nowUser, diary));
+                    known.revoke();
+                    nextUd.grant();
+                    diary.updateWriter(next);
                 } else {
                     LocalDateTime createDiaryDate = diary.getDiaryCreateAt();
                     LocalDateTime currentDate = LocalDateTime.now();
-                  Long daysPassed = ChronoUnit.DAYS.between(createDiaryDate, currentDate);
+                    Long daysPassed = ChronoUnit.DAYS.between(createDiaryDate, currentDate);
 //                    Long daysPassed = ChronoUnit.MINUTES.between(createDiaryDate, currentDate);
-
                     if (daysPassed % duration == 0) {
-                        diary.updateWriter(WhoIsNext(nowUser, diary));
+                        known.revoke();
+                        nextUd.grant();
+                        diary.updateWriter(next);
                     }
                 }
             }
@@ -186,7 +200,7 @@ public class DiaryServiceImpl implements DiaryService{
 
     public Long WhoIsNext(User user, Diary diary) {
         UserDiary known = userDiaryRepository.findByUserAndDiary(user, diary);
-        List<UserDiary> userDiaries = userDiaryRepository.findAllByDiaryOrderByInsDate(diary);
+        List<UserDiary> userDiaries = userDiaryRepository.findAllByDiaryAndIsJoinedOrderByInsDate(diary, 1);
 
         if (userDiaries.size() == 1) { // 다이어리 가입 멤버가 한명이면 바로 본인 리턴
             return user.getUserSeq();
@@ -219,6 +233,9 @@ public class DiaryServiceImpl implements DiaryService{
     // 초대하려는 다이어리에 이미 가입된 멤버는 검색대상에서 제외하거나 이미 가입된 멤버라고 보여주는 표시가 필요할 듯,,,
     @Cacheable
     public List<SearchUserResponse> searchUserByName(String userName) {
+        if (userName.isEmpty()) {
+            return Collections.emptyList(); // 비어있을 경우 빈 리스트 반환
+        }
         List<SearchUserResponse> users = userRepository.findByNickNameStartsWith(userName)
                 .stream()
                 .map(SearchUserResponse::response)
