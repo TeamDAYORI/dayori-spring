@@ -2,10 +2,7 @@ package com.tody.dayori.diary.controller;
 
 import com.tody.dayori.auth.entity.User;
 import com.tody.dayori.common.dto.BaseResponse;
-import com.tody.dayori.diary.dto.CreateDiaryRequest;
-import com.tody.dayori.diary.dto.JoinDiaryRequest;
-import com.tody.dayori.diary.dto.SearchUserResponse;
-import com.tody.dayori.diary.dto.UpdateDiaryRequest;
+import com.tody.dayori.diary.dto.*;
 import com.tody.dayori.diary.service.DiaryServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.apache.tomcat.util.codec.binary.Base64;
@@ -106,8 +103,10 @@ public class DiaryController {
     }
 
     @GetMapping("/search")
-    public List<SearchUserResponse> searchUsers(@RequestParam String userName, @AuthenticationPrincipal User user) {
-        return diaryService.searchUserByName(userName, user);
+    public List<SearchUserResponse> searchUsers(@RequestParam String userName,
+                                                @RequestBody SearchUserRequest request,
+                                                @AuthenticationPrincipal User user) {
+        return diaryService.searchUserByName(userName, request, user);
     }
 }
 

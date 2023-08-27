@@ -1,2 +1,14 @@
-package com.tody.dayori.diary.dto;public class SearchUserRequest {
+package com.tody.dayori.diary.dto;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.util.List;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class SearchUserRequest {
+    private List<Long> joinedUsers;
 }
