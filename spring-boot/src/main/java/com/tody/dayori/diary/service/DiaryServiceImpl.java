@@ -43,18 +43,12 @@ public class DiaryServiceImpl implements DiaryService{
     EntityManager em;
 
     @Transactional
-    public Long create(CreateDiaryRequest request) {
-        Long userSeq = TokenUtil.getCurrentUserSeq();
-        Diary diary = Diary.create(userSeq, request.getTitle(), request.getCover(), request.getDuration(), request.getPassword());
+    public Long create(CreateDiaryRequest request, User user) {
+        Diary diary = Diary.create(user.getUserSeq(), request.getTitle(), request.getCover(), request.getDuration(), request.getPassword());
         diaryRepository.save(diary);
-        com.tody.dayori.auth.entity.User user = userRepository.findById(userSeq).orElseThrow(EntityNotFoundException::new);
         UserDiary ud = UserDiary.create(user, diary);
         userDiaryRepository.save(ud);
         Long DiaryId = diary.getDiarySeq();
-//        byte[] idBytes = id.toString().getBytes(StandardCharsets.UTF_8);
-//        byte[] base64Bytes = Base64.encodeBase64(idBytes);
-//        String base64String = new String(base64Bytes, StandardCharsets.UTF_8).trim();
-//        diary.addInvCode(base64String);
         // 초대 부분
         request.getMembers().stream()
                 .forEach(memberSeq -> {
@@ -72,18 +66,9 @@ public class DiaryServiceImpl implements DiaryService{
         return result.orElseThrow(NullPointerException::new);
     }
 
-//    @Transactional
-//    public String getInvCode(Long diaryId) {
-//        Diary diary = diaryRepository.findById(diaryId)
-//                .orElseThrow(EntityNotFoundException::new);
-//        return diary.getInvitationCode();
-//    }
-
     @Transactional
-    public void joinAcceptDiary(Long diaryId, JoinDiaryRequest request) {
-        Long userSeq = TokenUtil.getCurrentUserSeq();
+    public void joinAcceptDiary(Long diaryId, JoinDiaryRequest request, User user) {
         Diary diary = diaryRepository.findById(diaryId).orElseThrow(EntityNotFoundException::new);
-        com.tody.dayori.auth.entity.User user = userRepository.findById(userSeq).orElseThrow(EntityNotFoundException::new);
         UserDiary userDiary = userDiaryRepository.findByUserAndDiary(user, diary);
         // 초대를 받지 않아 userDiary Entity에서 해당정보 찾을 수 없음.
         if (userDiary == null) {
@@ -102,10 +87,8 @@ public class DiaryServiceImpl implements DiaryService{
     }
 
     @Transactional
-    public void joinRefuseDiary(Long diaryId) {
-        Long userSeq = TokenUtil.getCurrentUserSeq();
+    public void joinRefuseDiary(Long diaryId, User user) {
         Diary diary = diaryRepository.findById(diaryId).orElseThrow(EntityNotFoundException::new);
-        com.tody.dayori.auth.entity.User user = userRepository.findById(userSeq).orElseThrow(EntityNotFoundException::new);
         UserDiary userDiary = userDiaryRepository.findByUserAndDiary(user, diary);
         // 초대를 받지 않아 userDiary Entity에서 해당정보 찾을 수 없음.
         if (userDiary == null) {
@@ -119,9 +102,7 @@ public class DiaryServiceImpl implements DiaryService{
 
 
     @Transactional
-    public List<DiaryResponse> getDiaryList() {
-        Long userSeq = TokenUtil.getCurrentUserSeq();
-        User user = userRepository.findById(userSeq).orElseThrow(EntityNotFoundException::new);
+    public List<DiaryResponse> getDiaryList(User user) {
         List<DiaryResponse> diaries = userDiaryRepository.findByUser(user).stream()
                 .map(DiaryResponse::response)
                 .collect(Collectors.toList());
@@ -134,9 +115,7 @@ public class DiaryServiceImpl implements DiaryService{
     }
 
     @Transactional
-    public void update(Long diaryId, UpdateDiaryRequest request) {
-        Long userSeq = TokenUtil.getCurrentUserSeq();
-        User user = userRepository.findById(userSeq).orElseThrow(EntityNotFoundException::new);
+    public void update(Long diaryId, UpdateDiaryRequest request, User user) {
         Diary diary = diaryRepository.findById(diaryId)
                 .orElseThrow(EntityNotFoundException::new);
         UserDiary ud = userDiaryRepository.findByUserAndDiary(user, diary);
@@ -146,9 +125,7 @@ public class DiaryServiceImpl implements DiaryService{
     }
 
     @Transactional
-    public void withdraw(Long diaryId) {
-        Long userSeq = TokenUtil.getCurrentUserSeq();
-        User user = userRepository.findById(userSeq).orElseThrow(EntityNotFoundException::new);
+    public void withdraw(Long diaryId, User user) {
         Diary diary = diaryRepository.findById(diaryId)
                 .orElseThrow(EntityNotFoundException::new);
         UserDiary ud = userDiaryRepository.findByUserAndDiary(user, diary);
@@ -232,7 +209,7 @@ public class DiaryServiceImpl implements DiaryService{
     // 친구 초대할 때 사용하는 유저 검색 기능
     // 초대하려는 다이어리에 이미 가입된 멤버는 검색대상에서 제외하거나 이미 가입된 멤버라고 보여주는 표시가 필요할 듯,,,
     @Cacheable
-    public List<SearchUserResponse> searchUserByName(String userName) {
+    public List<SearchUserResponse> searchUserByName(String userName, User me) {
         if (userName.isEmpty()) {
             return Collections.emptyList(); // 비어있을 경우 빈 리스트 반환
         }
