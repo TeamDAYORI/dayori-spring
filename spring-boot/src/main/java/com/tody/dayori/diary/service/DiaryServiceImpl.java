@@ -50,14 +50,30 @@ public class DiaryServiceImpl implements DiaryService{
         userDiaryRepository.save(ud);
         Long DiaryId = diary.getDiarySeq();
         // 초대 부분
-        request.getMembers().stream()
-                .forEach(memberSeq -> {
-                    User member = userRepository.findById(memberSeq).orElseThrow(EntityNotFoundException::new);
-                    UserDiary ud2 = UserDiary.invited(member, diary);
-                    userDiaryRepository.save(ud2);
-                });
-
+        invite(request.getMembers(), diary);
         return DiaryId;
+    }
+
+        public void invite(List<Long> members, Diary diary) {
+        members.stream()
+                .forEach(memberSeq -> {
+                    User member = userRepository.findByUserSeq(memberSeq);
+                    if(member != null){
+                        UserDiary ud = UserDiary.invited(member, diary);
+                        userDiaryRepository.save(ud);
+                    }
+                });
+    }
+
+    @Transactional
+    public void update(Long diaryId, UpdateDiaryRequest request, User user) {
+        Diary diary = diaryRepository.findById(diaryId)
+                .orElseThrow(EntityNotFoundException::new);
+        UserDiary ud = userDiaryRepository.findByUserAndDiary(user, diary);
+        if (ud != null) {
+            ud.update(request.getTitle(), request.getCover());
+        }
+        invite(request.getAdditionalMembers(), diary);
     }
 
     @Transactional
@@ -114,15 +130,6 @@ public class DiaryServiceImpl implements DiaryService{
         return diaries;
     }
 
-    @Transactional
-    public void update(Long diaryId, UpdateDiaryRequest request, User user) {
-        Diary diary = diaryRepository.findById(diaryId)
-                .orElseThrow(EntityNotFoundException::new);
-        UserDiary ud = userDiaryRepository.findByUserAndDiary(user, diary);
-        if (ud != null) {
-            ud.update(request.getTitle(), request.getCover());
-        }
-    }
 
     @Transactional
     public void withdraw(Long diaryId, User user) {
