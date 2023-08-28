@@ -102,11 +102,11 @@ public class DiaryController {
                 HttpStatus.OK);
     }
 
-    @GetMapping("/search")
+    @GetMapping("/search/{diaryId}")
     public List<SearchUserResponse> searchUsers(@RequestParam String userName,
-                                                @RequestBody SearchUserRequest request,
+                                                @PathVariable(required = false) Long diaryId,
                                                 @AuthenticationPrincipal User user) {
-        return diaryService.searchUserByName(userName, request, user);
+        return diaryService.searchUserByName(userName, user, diaryId);
     }
 }
 

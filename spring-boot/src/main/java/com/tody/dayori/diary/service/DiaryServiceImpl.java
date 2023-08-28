@@ -3,6 +3,7 @@ package com.tody.dayori.diary.service;
 import com.tody.dayori.auth.entity.User;
 import com.tody.dayori.auth.repository.UserRepository;
 import com.tody.dayori.common.exception.DuplicateException;
+import com.tody.dayori.common.exception.NotFoundException;
 import com.tody.dayori.common.exception.NotMatchException;
 import com.tody.dayori.common.util.TokenUtil;
 import com.tody.dayori.diary.domain.Diary;
@@ -216,16 +217,26 @@ public class DiaryServiceImpl implements DiaryService{
     // 친구 초대할 때 사용하는 유저 검색 기능
     // 초대하려는 다이어리에 이미 가입된 멤버는 검색대상에서 제외하거나 이미 가입된 멤버라고 보여주는 표시가 필요할 듯,,,
     @Cacheable
-    public List<SearchUserResponse> searchUserByName(String userName, SearchUserRequest request, User me) {
+    public List<SearchUserResponse> searchUserByName(String userName, User me, Long diaryId) {
         if (userName.isEmpty()) {
             return Collections.emptyList(); // 비어있을 경우 빈 리스트 반환
         }
-        List<SearchUserResponse> users = userRepository.findByNickNameContaining(userName)
-                .stream()
-                .filter(user -> !user.equals(me) && !request.getJoinedUsers().contains(user.getUserSeq()))
-                .map(SearchUserResponse::response)
-                .collect(Collectors.toList());
-        return users;
+        if (diaryId == 0){ // createDiary 상황
+            List<SearchUserResponse> users = userRepository.findByNickNameContaining(userName)
+                    .stream()
+                    .filter(user -> !user.equals(me))
+                    .map(SearchUserResponse::response)
+                    .collect(Collectors.toList());
+            return users;
+        }else { // updateDiary 상황
+            Diary diary = diaryRepository.findById(diaryId).orElseThrow(NotFoundException::new);
+            List<SearchUserResponse> users = userRepository.findByNickNameContaining(userName)
+                    .stream()
+                    .filter(user -> !user.equals(me) && userDiaryRepository.findByUserAndDiary(user, diary) == null)
+                    .map(SearchUserResponse::response)
+                    .collect(Collectors.toList());
+            return users;
+        }
     }
 
 
