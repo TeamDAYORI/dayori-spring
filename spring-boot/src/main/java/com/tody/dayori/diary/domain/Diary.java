@@ -68,9 +68,11 @@ public class Diary extends BaseEntity{
         return diary;
     }
 
-
-    public void update(String title, Integer duration) {
+    //관리자 변경 부분
+    public void update(String title, String cover, String password, Integer duration) {
         this.diaryTitle = title;
+        this.diaryCover = cover;
+        this.diaryPassword = password;
         this.diaryDuration = duration;
     }
 

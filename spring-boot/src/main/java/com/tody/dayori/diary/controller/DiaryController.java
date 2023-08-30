@@ -2,15 +2,13 @@ package com.tody.dayori.diary.controller;
 
 import com.tody.dayori.auth.entity.User;
 import com.tody.dayori.common.dto.BaseResponse;
-import com.tody.dayori.diary.dto.CreateDiaryRequest;
-import com.tody.dayori.diary.dto.JoinDiaryRequest;
-import com.tody.dayori.diary.dto.SearchUserResponse;
-import com.tody.dayori.diary.dto.UpdateDiaryRequest;
+import com.tody.dayori.diary.dto.*;
 import com.tody.dayori.diary.service.DiaryServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -27,8 +25,8 @@ public class DiaryController {
     private final DiaryServiceImpl diaryService;
 
     @PostMapping("")
-    public ResponseEntity<BaseResponse> createDiary(@RequestBody CreateDiaryRequest request){
-        Long diaryId = diaryService.create(request);
+    public ResponseEntity<BaseResponse> createDiary(@RequestBody CreateDiaryRequest request, @AuthenticationPrincipal User user){
+        Long diaryId = diaryService.create(request, user);
         Map<String, Long> response = new HashMap<>();
         response.put("diaryId", diaryId);
         return new ResponseEntity<>(BaseResponse.from(
@@ -38,23 +36,15 @@ public class DiaryController {
                 HttpStatus.OK);
     }
 
-//    @GetMapping("/{diaryId}/invcode")
-//    public ResponseEntity<?> getInvCode(
-//            @PathVariable("diaryId") Long diaryId
-//            ){
-//        return ResponseEntity.ok(diaryService.getInvCode(diaryId));
-//    }
 
     @PostMapping("/accept/{diaryId}")
     public ResponseEntity<BaseResponse> acceptDiary(
             @PathVariable("diaryId") String diaryId,
-            @RequestBody JoinDiaryRequest request
+            @RequestBody JoinDiaryRequest request,
+            @AuthenticationPrincipal User user
             ){
-//        byte[] base64Bytes = invCode.getBytes();
-//        byte[] idBytes = Base64.decodeBase64(base64Bytes);
-//        String idString = new String(idBytes);
         Long diarySeq = Long.parseLong(diaryId);
-        diaryService.joinAcceptDiary(diarySeq, request);
+        diaryService.joinAcceptDiary(diarySeq, request, user);
         return new ResponseEntity<>(BaseResponse.from(
                 true,
                 JOIN_DIARY_SUCCESS_MESSAGE,
@@ -64,10 +54,11 @@ public class DiaryController {
 
     @PostMapping("/refuse/{diaryId}")
     public ResponseEntity<BaseResponse> refuseDiary(
-            @PathVariable("diaryId") String diaryId
+            @PathVariable("diaryId") String diaryId,
+            @AuthenticationPrincipal User user
     ) {
         Long diarySeq = Long.parseLong(diaryId);
-        diaryService.joinRefuseDiary(diarySeq);
+        diaryService.joinRefuseDiary(diarySeq, user);
         return new ResponseEntity<>(BaseResponse.from(
                 true,
                 REFUSE_DIARY_SUCCESS_MESSAGE,
@@ -76,20 +67,37 @@ public class DiaryController {
     }
 
     @GetMapping("/list")
-    public ResponseEntity<BaseResponse> getDiaryList(){
+    public ResponseEntity<BaseResponse> getDiaryList(@AuthenticationPrincipal User user){
         return new ResponseEntity<>(BaseResponse.from(
                 true,
                 SEARCH_DIARY_SUCCESS_MESSAGE,
-                diaryService.getDiaryList()),
+                diaryService.getDiaryList(user)),
                 HttpStatus.OK);
     }
 
+    // 개인 변경 부분
     @PutMapping("/{diaryId}")
     public ResponseEntity<?> updateDiary(
             @PathVariable Long diaryId,
-            @RequestBody UpdateDiaryRequest request
+            @RequestBody UpdateDiaryRequest request,
+            @AuthenticationPrincipal User user
             ){
-        diaryService.update(diaryId, request);
+        diaryService.update(diaryId, request, user);
+        return new ResponseEntity<>(BaseResponse.from(
+                true,
+                UPDATE_DIARY_SUCCESS_MESSAGE,
+                diaryId),
+                HttpStatus.OK);
+    }
+
+    // 관리자 변경 부분
+    @PutMapping("/set/{diaryId}")
+    public ResponseEntity<BaseResponse> setDiary(
+            @PathVariable Long diaryId,
+            @RequestBody SettingDiaryRequest request,
+            @AuthenticationPrincipal User user
+    ) {
+        diaryService.setDiary(diaryId, request, user);
         return new ResponseEntity<>(BaseResponse.from(
                 true,
                 UPDATE_DIARY_SUCCESS_MESSAGE,
@@ -99,9 +107,10 @@ public class DiaryController {
 
     @DeleteMapping("/{diaryId}")
     public ResponseEntity<BaseResponse> deleteDiary(
-            @PathVariable Long diaryId
+            @PathVariable Long diaryId,
+            @AuthenticationPrincipal User user
     ){
-        diaryService.withdraw(diaryId);
+        diaryService.withdraw(diaryId, user);
         return new ResponseEntity<>(BaseResponse.from(
                 true,
                 WITHDRAW_DIARY_SUCCESS_MESSAGE,
@@ -109,9 +118,11 @@ public class DiaryController {
                 HttpStatus.OK);
     }
 
-    @GetMapping("/search")
-    public List<SearchUserResponse> searchUsers(@RequestParam String userName) {
-        return diaryService.searchUserByName(userName);
+    @GetMapping("/search/{diaryId}")
+    public List<SearchUserResponse> searchUsers(@RequestParam String userName,
+                                                @PathVariable(required = false) Long diaryId,
+                                                @AuthenticationPrincipal User user) {
+        return diaryService.searchUserByName(userName, user, diaryId);
     }
 }
 
