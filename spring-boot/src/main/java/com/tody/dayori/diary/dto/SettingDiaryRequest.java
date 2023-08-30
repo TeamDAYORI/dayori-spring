@@ -9,8 +9,11 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class UpdateDiaryRequest {
+public class SettingDiaryRequest {
 
     private String title;
     private String cover;
+    private String password;
+    private Integer period;
+    private List<Long> additionalMembers;
 }

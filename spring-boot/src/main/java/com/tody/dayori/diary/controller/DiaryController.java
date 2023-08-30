@@ -75,6 +75,7 @@ public class DiaryController {
                 HttpStatus.OK);
     }
 
+    // 개인 변경 부분
     @PutMapping("/{diaryId}")
     public ResponseEntity<?> updateDiary(
             @PathVariable Long diaryId,
@@ -82,6 +83,21 @@ public class DiaryController {
             @AuthenticationPrincipal User user
             ){
         diaryService.update(diaryId, request, user);
+        return new ResponseEntity<>(BaseResponse.from(
+                true,
+                UPDATE_DIARY_SUCCESS_MESSAGE,
+                diaryId),
+                HttpStatus.OK);
+    }
+
+    // 관리자 변경 부분
+    @PutMapping("/set/{diaryId}")
+    public ResponseEntity<BaseResponse> setDiary(
+            @PathVariable Long diaryId,
+            @RequestBody SettingDiaryRequest request,
+            @AuthenticationPrincipal User user
+    ) {
+        diaryService.setDiary(diaryId, request, user);
         return new ResponseEntity<>(BaseResponse.from(
                 true,
                 UPDATE_DIARY_SUCCESS_MESSAGE,

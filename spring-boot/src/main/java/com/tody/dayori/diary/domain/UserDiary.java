@@ -65,7 +65,7 @@ public class UserDiary implements Serializable {
 
     public static UserDiary invited(User user, Diary diary) {
         UserDiary userDiary = new UserDiary();
-        userDiary.groupAuth = 1;
+        userDiary.groupAuth = 0;
         userDiary.user = user;
         userDiary.diary = diary;
         userDiary.userTitle = diary.getDiaryTitle();
@@ -79,6 +79,7 @@ public class UserDiary implements Serializable {
         this.isJoined = 1;
     }
 
+    // 개인 아이콘, 제목 변경
     public void update(String title, String cover) {
         this.userCover = cover;
         this.userTitle = title;

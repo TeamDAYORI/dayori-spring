@@ -14,13 +14,17 @@ import com.tody.dayori.diary.repository.UserDiaryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.PersistenceContext;
+import javax.servlet.http.HttpServletResponse;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
@@ -66,6 +70,24 @@ public class DiaryServiceImpl implements DiaryService{
                 });
     }
 
+    //관리자 변경 부분
+    @Transactional
+    public void setDiary(Long diaryId, SettingDiaryRequest request, User user) {
+        Diary diary = diaryRepository.findByDiarySeq(diaryId);
+        UserDiary ud  = userDiaryRepository.findByUserAndDiary(user, diary);
+//        if (ud.getGroupAuth() != 1) {
+//            HttpServletResponse response = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getResponse();
+//            response.setStatus(HttpStatus.UNAUTHORIZED.value());
+//            return;
+//        }
+        if (diary != null) {
+            diary.update(request.getTitle(), request.getCover(), request.getPassword(), request.getPeriod());
+            invite(request.getAdditionalMembers(), diary);
+        }
+    }
+
+
+    //개인 변경 부분
     @Transactional
     public void update(Long diaryId, UpdateDiaryRequest request, User user) {
         Diary diary = diaryRepository.findById(diaryId)
@@ -74,7 +96,6 @@ public class DiaryServiceImpl implements DiaryService{
         if (ud != null) {
             ud.update(request.getTitle(), request.getCover());
         }
-        invite(request.getAdditionalMembers(), diary);
     }
 
     @Transactional
@@ -124,9 +145,8 @@ public class DiaryServiceImpl implements DiaryService{
                 .map(DiaryResponse::response)
                 .collect(Collectors.toList());
         // isJoined가 0인 경우 가장 우선순위, myTurn이 1인 경우 다음 우선순위
-        Collections.sort(diaries, Comparator.comparingInt(DiaryResponse::getMyTurn)
-                .reversed()
-                .thenComparingInt(DiaryResponse::getIsJoined));
+        Collections.sort(diaries, Comparator.comparingInt(DiaryResponse::getIsJoined).reversed()
+                .thenComparingInt(DiaryResponse::getMyTurn).reversed());
 
         return diaries;
     }
